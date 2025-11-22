@@ -1,20 +1,24 @@
 package com.payment.service;
 
-import com.payment.dto.SearchFilter;
-import com.payment.dto.TransactionResponseDTO;
+import com.payment.dto.TransactionResponse;
+import com.payment.dto.TransactionResponse.TransactionDetailDTO;
+import com.payment.dto.TransactionResponse.TransactionSummary;
 import com.payment.entity.TransactionMaster;
 import com.payment.mapper.TransactionMapper;
 import com.payment.repository.TransactionRepository;
+import com.payment.util.ValidationUtil;
+import io.micronaut.cache.annotation.Cacheable;
 import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
 import jakarta.inject.Singleton;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 /**
  * Service layer for Transaction operations
@@ -23,219 +27,187 @@ import java.util.stream.Collectors;
 @Singleton
 public class TransactionService {
 
+    private static final Logger LOG = LoggerFactory.getLogger(TransactionService.class);
+
     private final TransactionRepository transactionRepository;
     private final TransactionMapper transactionMapper;
+    private final MetricsService metricsService;
 
-    public TransactionService(TransactionRepository transactionRepository, TransactionMapper transactionMapper) {
+    public TransactionService(TransactionRepository transactionRepository, TransactionMapper transactionMapper, MetricsService metricsService) {
         this.transactionRepository = transactionRepository;
         this.transactionMapper = transactionMapper;
+        this.metricsService = metricsService;
     }
 
     /**
-     * Search transactions with filters and pagination, returning DTOs
+     * Search transactions with filters and pagination, returning DTOs with summary
      * @param merchantId The merchant ID to search for
-     * @param searchFilters List of search filters to apply
+     * @param startDate Start date for filtering (optional)
+     * @param endDate End date for filtering (optional)
+     * @param status Status for filtering (optional)
+     * @param currency Currency for filtering (optional)
+     * @param minAmount Minimum amount for filtering (optional)
+     * @param maxAmount Maximum amount for filtering (optional)
      * @param pageable Pagination parameters
-     * @return Page of TransactionResponseDTO
+     * @return TransactionResponse with transactions and summary
      */
-    public Page<TransactionResponseDTO> searchTransactions(
+    @Cacheable("transactions")
+    public TransactionResponse searchTransactions(
             String merchantId,
-            List<SearchFilter> searchFilters,
+            LocalDate startDate,
+            LocalDate endDate,
+            String status,
+            String currency,
+            BigDecimal minAmount,
+            BigDecimal maxAmount,
             Pageable pageable
     ) {
-        // Fetch all transactions for the merchant
-        List<TransactionMaster> allTransactions = transactionRepository.findByMerchantId(merchantId);
+        LOG.info("Searching transactions for merchant: {}, page: {}, size: {}", 
+                merchantId, pageable.getNumber(), pageable.getSize());
 
-        // Apply search filters
-        List<TransactionMaster> filteredTransactions = allTransactions;
-        if (searchFilters != null && !searchFilters.isEmpty()) {
-            filteredTransactions = allTransactions.stream()
-                    .filter(transaction -> applyFilters(transaction, searchFilters))
-                    .collect(Collectors.toList());
-        }
-
-        // Apply pagination
-        int totalSize = filteredTransactions.size();
-        int pageNumber = pageable.getNumber();
-        int pageSize = pageable.getSize();
-        int fromIndex = pageNumber * pageSize;
-        int toIndex = Math.min(fromIndex + pageSize, totalSize);
-
-        List<TransactionMaster> paginatedTransactions;
-        if (fromIndex < totalSize) {
-            paginatedTransactions = filteredTransactions.subList(fromIndex, toIndex);
-        } else {
-            paginatedTransactions = List.of();
-        }
-
-        // Convert to DTOs
-        List<TransactionResponseDTO> dtos = paginatedTransactions.stream()
-                .map(transactionMapper::toDTO)
-                .collect(Collectors.toList());
-
-        // Return Micronaut Page with DTOs
-        return Page.of(dtos, pageable, totalSize);
-    }
-
-    /**
-     * Apply all filters to a transaction (AND logic)
-     * @param transaction The transaction to check
-     * @param filters List of filters to apply
-     * @return true if transaction matches all filters
-     */
-    private boolean applyFilters(TransactionMaster transaction, List<SearchFilter> filters) {
-        for (SearchFilter filter : filters) {
-            if (!matchesFilter(transaction, filter)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Check if a transaction matches a single filter
-     * @param transaction The transaction to check
-     * @param filter The filter to apply
-     * @return true if transaction matches the filter
-     */
-    private boolean matchesFilter(TransactionMaster transaction, SearchFilter filter) {
-        String field = filter.getField();
-        String condition = filter.getCondition();
-        String value = filter.getValue();
-
-        if (field == null || condition == null || value == null) {
-            return true;
-        }
-
-        return switch (field) {
-            case "txnDate" -> matchDateField(transaction.getTxnDate(), condition, value);
-            case "status" -> matchStringField(transaction.getStatus(), condition, value);
-            case "amount" -> matchNumericField(transaction.getAmount(), condition, value);
-            case "currency" -> matchStringField(transaction.getCurrency(), condition, value);
-            case "cardType" -> matchStringField(transaction.getCardType(), condition, value);
-            case "cardLast4" -> matchStringField(transaction.getCardLast4(), condition, value);
-            case "authCode" -> matchStringField(transaction.getAuthCode(), condition, value);
-            case "responseCode" -> matchStringField(transaction.getResponseCode(), condition, value);
-            case "merchantId" -> matchStringField(transaction.getMerchantId(), condition, value);
-            case "gpAcquirerId" -> matchLongField(transaction.getGpAcquirerId(), condition, value);
-            case "gpIssuerId" -> matchLongField(transaction.getGpIssuerId(), condition, value);
-            default -> true; // Unknown field, don't filter
-        };
-    }
-
-    /**
-     * Match string field with condition
-     */
-    private boolean matchStringField(String fieldValue, String condition, String filterValue) {
-        if (fieldValue == null) {
-            return false;
-        }
-
-        return switch (condition) {
-            case "equals" -> fieldValue.equalsIgnoreCase(filterValue);
-            case "notEquals" -> !fieldValue.equalsIgnoreCase(filterValue);
-            case "contains" -> fieldValue.toLowerCase().contains(filterValue.toLowerCase());
-            default -> true;
-        };
-    }
-
-    /**
-     * Match numeric field (BigDecimal) with condition
-     */
-    private boolean matchNumericField(BigDecimal fieldValue, String condition, String filterValue) {
-        if (fieldValue == null) {
-            return false;
-        }
+        // Start timing the operation
+        var timerSample = metricsService.startTransactionSearchTimer();
 
         try {
-            BigDecimal filterAmount = new BigDecimal(filterValue);
-            return switch (condition) {
-                case "equals" -> fieldValue.compareTo(filterAmount) == 0;
-                case "notEquals" -> fieldValue.compareTo(filterAmount) != 0;
-                case "greaterThan" -> fieldValue.compareTo(filterAmount) > 0;
-                case "lessThan" -> fieldValue.compareTo(filterAmount) < 0;
-                case "greaterThanOrEqual" -> fieldValue.compareTo(filterAmount) >= 0;
-                case "lessThanOrEqual" -> fieldValue.compareTo(filterAmount) <= 0;
-                default -> true;
-            };
-        } catch (NumberFormatException e) {
-            return false;
-        }
-    }
+            // Validate inputs
+            ValidationUtil.validateMerchantId(merchantId);
+            ValidationUtil.validatePagination(pageable.getNumber(), pageable.getSize());
+            ValidationUtil.validateFilters(status, currency, null); // cardType not used in this method
 
-    /**
-     * Match Long field with condition
-     */
-    private boolean matchLongField(Long fieldValue, String condition, String filterValue) {
-        if (fieldValue == null) {
-            return false;
-        }
+            // Convert LocalDate to Date for database queries
+            Date sqlStartDate = startDate != null ? Date.valueOf(startDate) : null;
+            Date sqlEndDate = endDate != null ? Date.valueOf(endDate) : null;
 
-        try {
-            Long filterLong = Long.parseLong(filterValue);
-            return switch (condition) {
-                case "equals" -> fieldValue.equals(filterLong);
-                case "notEquals" -> !fieldValue.equals(filterLong);
-                case "greaterThan" -> fieldValue > filterLong;
-                case "lessThan" -> fieldValue < filterLong;
-                case "greaterThanOrEqual" -> fieldValue >= filterLong;
-                case "lessThanOrEqual" -> fieldValue <= filterLong;
-                default -> true;
-            };
-        } catch (NumberFormatException e) {
-            return false;
-        }
-    }
+            // Fetch paginated transactions with filters
+            Page<TransactionMaster> transactionPage = transactionRepository.findWithFilters(
+                    merchantId,
+                    sqlStartDate,
+                    sqlEndDate,
+                    status,
+                    currency,
+                    minAmount,
+                    maxAmount,
+                    pageable
+            );
 
-    /**
-     * Match date field with condition
-     */
-    private boolean matchDateField(Date fieldValue, String condition, String filterValue) {
-        if (fieldValue == null) {
-            return false;
-        }
+            // Calculate summary statistics
+            TransactionSummary summary = calculateSummary(merchantId, startDate, endDate, status, currency, minAmount, maxAmount);
 
-        try {
-            LocalDate filterDate = LocalDate.parse(filterValue, DateTimeFormatter.ISO_LOCAL_DATE);
-            LocalDate txnLocalDate = fieldValue.toLocalDate();
+            // Convert entities to DTOs
+            List<TransactionDetailDTO> transactionDTOs = transactionPage.getContent().stream()
+                    .map(transactionMapper::toTransactionDetailDTO)
+                    .toList();
 
-            return switch (condition) {
-                case "equals" -> txnLocalDate.isEqual(filterDate);
-                case "notEquals" -> !txnLocalDate.isEqual(filterDate);
-                case "greaterThan" -> txnLocalDate.isAfter(filterDate);
-                case "lessThan" -> txnLocalDate.isBefore(filterDate);
-                case "greaterThanOrEqual" -> txnLocalDate.isAfter(filterDate) || txnLocalDate.isEqual(filterDate);
-                case "lessThanOrEqual" -> txnLocalDate.isBefore(filterDate) || txnLocalDate.isEqual(filterDate);
-                default -> true;
-            };
+            LOG.info("Found {} transactions for merchant: {}", transactionPage.getTotalSize(), merchantId);
+
+            // Record metrics
+            metricsService.recordTransactionSearch(merchantId, transactionPage.getContent().size());
+            metricsService.recordTransactionSearchDuration(timerSample, merchantId);
+
+            return TransactionResponse.builder()
+                    .transactions(transactionDTOs)
+                    .summary(summary)
+                    .build();
         } catch (Exception e) {
-            return false;
+            metricsService.recordError("search_error", "transaction_search");
+            LOG.error("Error searching transactions for merchant: {}", merchantId, e);
+            throw e;
         }
+    }
+
+    /**
+     * Calculate summary statistics for transactions
+     */
+    private TransactionSummary calculateSummary(
+            String merchantId,
+            LocalDate startDate,
+            LocalDate endDate,
+            String status,
+            String currency,
+            BigDecimal minAmount,
+            BigDecimal maxAmount
+    ) {
+        Date sqlStartDate = startDate != null ? Date.valueOf(startDate) : null;
+        Date sqlEndDate = endDate != null ? Date.valueOf(endDate) : null;
+
+        Optional<Object[]> summaryResult = transactionRepository.calculateSummary(
+                merchantId,
+                sqlStartDate,
+                sqlEndDate,
+                status,
+                currency,
+                minAmount,
+                maxAmount
+        );
+
+        if (summaryResult.isPresent() && summaryResult.get()[0] != null) {
+            Object[] result = summaryResult.get();
+            Long totalTransactions = result[0] != null ? ((Number) result[0]).longValue() : 0L;
+            BigDecimal totalAmount = result[1] != null ? (BigDecimal) result[1] : BigDecimal.ZERO;
+            BigDecimal averageAmount = result[2] != null ? (BigDecimal) result[2] : BigDecimal.ZERO;
+            BigDecimal minAmountResult = result[3] != null ? (BigDecimal) result[3] : BigDecimal.ZERO;
+            BigDecimal maxAmountResult = result[4] != null ? (BigDecimal) result[4] : BigDecimal.ZERO;
+
+            return TransactionSummary.builder()
+                    .totalTransactions(totalTransactions)
+                    .totalAmount(totalAmount)
+                    .averageAmount(averageAmount)
+                    .minAmount(minAmountResult)
+                    .maxAmount(maxAmountResult)
+                    .build();
+        } else {
+            return TransactionSummary.builder()
+                    .totalTransactions(0L)
+                    .totalAmount(BigDecimal.ZERO)
+                    .averageAmount(BigDecimal.ZERO)
+                    .minAmount(BigDecimal.ZERO)
+                    .maxAmount(BigDecimal.ZERO)
+                    .build();
+        }
+    }
+
+    /**
+     * Get all transactions for a merchant with summary (without pagination)
+     */
+    public TransactionResponse getAllTransactionsByMerchant(String merchantId) {
+        ValidationUtil.validateMerchantId(merchantId);
+        
+        List<TransactionMaster> transactions = transactionRepository.findByMerchantId(merchantId);
+        
+        List<TransactionDetailDTO> transactionDTOs = transactions.stream()
+                .map(transactionMapper::toTransactionDetailDTO)
+                .toList();
+        
+        // Calculate summary for all transactions
+        TransactionSummary summary = calculateSummary(merchantId, null, null, null, null, null, null);
+
+        return TransactionResponse.builder()
+                .transactions(transactionDTOs)
+                .summary(summary)
+                .build();
     }
 
     /**
      * Create a new transaction
      */
-    public TransactionResponseDTO createTransaction(TransactionMaster transaction) {
+    public TransactionDetailDTO createTransaction(TransactionMaster transaction) {
+        ValidationUtil.validateMerchantId(transaction.getMerchantId());
+        
         TransactionMaster saved = transactionRepository.save(transaction);
-        return transactionMapper.toDTO(saved);
+        TransactionDetailDTO result = transactionMapper.toTransactionDetailDTO(saved);
+        
+        // Record metrics
+        metricsService.recordTransactionCreation(transaction.getMerchantId(), transaction.getStatus());
+        
+        return result;
     }
 
     /**
      * Find a transaction by ID
      */
-    public TransactionResponseDTO findById(Long txnId) {
+    public TransactionDetailDTO findById(Long txnId) {
         return transactionRepository.findById(txnId)
-                .map(transactionMapper::toDTO)
+                .map(transactionMapper::toTransactionDetailDTO)
                 .orElse(null);
-    }
-
-    /**
-     * Get all transactions for a merchant (without filters)
-     */
-    public List<TransactionResponseDTO> getAllTransactionsByMerchant(String merchantId) {
-        return transactionRepository.findByMerchantId(merchantId).stream()
-                .map(transactionMapper::toDTO)
-                .collect(Collectors.toList());
     }
 }

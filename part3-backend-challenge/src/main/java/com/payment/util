@@ -1,0 +1,93 @@
+package com.payment.util;
+
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
+/**
+ * Validation utility class for transaction operations
+ */
+public class ValidationUtil {
+    
+    public static final int MAX_PAGE_SIZE = 100;
+    public static final int DEFAULT_PAGE_SIZE = 10;
+    public static final int MIN_PAGE_SIZE = 1;
+    public static final int MAX_PAGE_NUMBER = 1000;
+    
+    /**
+     * Validates pagination parameters
+     */
+    public static void validatePagination(int page, int size) {
+        if (page < 0) {
+            throw new IllegalArgumentException("Page number must be non-negative");
+        }
+        if (page > MAX_PAGE_NUMBER) {
+            throw new IllegalArgumentException("Page number exceeds maximum allowed value of " + MAX_PAGE_NUMBER);
+        }
+        if (size < MIN_PAGE_SIZE) {
+            throw new IllegalArgumentException("Page size must be at least " + MIN_PAGE_SIZE);
+        }
+        if (size > MAX_PAGE_SIZE) {
+            throw new IllegalArgumentException("Page size exceeds maximum allowed value of " + MAX_PAGE_SIZE);
+        }
+    }
+    
+    /**
+     * Validates merchant ID format
+     */
+    public static void validateMerchantId(String merchantId) {
+        if (merchantId == null || merchantId.trim().isEmpty()) {
+            throw new IllegalArgumentException("Merchant ID cannot be null or empty");
+        }
+        if (merchantId.length() > 50) {
+            throw new IllegalArgumentException("Merchant ID exceeds maximum length of 50 characters");
+        }
+        // Basic alphanumeric validation
+        if (!merchantId.matches("^[a-zA-Z0-9_-]+$")) {
+            throw new IllegalArgumentException("Merchant ID contains invalid characters. Only alphanumeric, underscore, and hyphen are allowed.");
+        }
+    }
+    
+    /**
+     * Validates filter parameters
+     */
+    public static void validateFilters(String status, String currency, String cardType) {
+        if (status != null && !status.trim().isEmpty()) {
+            if (!isValidStatus(status)) {
+                throw new IllegalArgumentException("Invalid status value: " + status + ". Valid values are: APPROVED, DECLINED, PENDING, CANCELLED");
+            }
+        }
+        
+        if (currency != null && !currency.trim().isEmpty()) {
+            if (currency.length() != 3) {
+                throw new IllegalArgumentException("Currency code must be 3 characters");
+            }
+            if (!currency.matches("^[A-Z]{3}$")) {
+                throw new IllegalArgumentException("Currency code must be 3 uppercase letters");
+            }
+        }
+        
+        if (cardType != null && !cardType.trim().isEmpty()) {
+            if (!isValidCardType(cardType)) {
+                throw new IllegalArgumentException("Invalid card type: " + cardType + ". Valid values are: VISA, MASTERCARD, AMEX, DISCOVER, DINERS, JCB");
+            }
+        }
+    }
+    
+    private static boolean isValidStatus(String status) {
+        return status.equalsIgnoreCase("APPROVED") || 
+               status.equalsIgnoreCase("DECLINED") || 
+               status.equalsIgnoreCase("PENDING") || 
+               status.equalsIgnoreCase("CANCELLED");
+    }
+    
+    private static boolean isValidCardType(String cardType) {
+        return cardType.equalsIgnoreCase("VISA") || 
+               cardType.equalsIgnoreCase("MASTERCARD") || 
+               cardType.equalsIgnoreCase("AMEX") || 
+               cardType.equalsIgnoreCase("DISCOVER") || 
+               cardType.equalsIgnoreCase("DINERS") || 
+               cardType.equalsIgnoreCase("JCB");
+    }
+}

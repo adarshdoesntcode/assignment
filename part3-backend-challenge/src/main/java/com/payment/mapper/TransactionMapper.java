@@ -1,6 +1,6 @@
 package com.payment.mapper;
 
-import com.payment.dto.TransactionResponseDTO;
+import com.payment.dto.TransactionResponse.TransactionDetailDTO;
 import com.payment.entity.TransactionMaster;
 import jakarta.inject.Singleton;
 
@@ -11,16 +11,16 @@ import jakarta.inject.Singleton;
 public class TransactionMapper {
 
     /**
-     * Convert TransactionMaster entity to TransactionResponseDTO
+     * Convert TransactionMaster entity to TransactionDetailDTO
      * @param entity The entity to convert
      * @return The DTO representation
      */
-    public TransactionResponseDTO toDTO(TransactionMaster entity) {
+    public TransactionDetailDTO toTransactionDetailDTO(TransactionMaster entity) {
         if (entity == null) {
             return null;
         }
 
-        return TransactionResponseDTO.builder()
+        return TransactionDetailDTO.builder()
                 .txnId(entity.getTxnId())
                 .merchantId(entity.getMerchantId())
                 .gpAcquirerId(entity.getGpAcquirerId())
@@ -39,11 +39,11 @@ public class TransactionMapper {
     }
 
     /**
-     * Convert TransactionResponseDTO to TransactionMaster entity
+     * Convert TransactionDetailDTO to TransactionMaster entity
      * @param dto The DTO to convert
      * @return The entity representation
      */
-    public TransactionMaster toEntity(TransactionResponseDTO dto) {
+    public TransactionMaster toEntity(TransactionDetailDTO dto) {
         if (dto == null) {
             return null;
         }

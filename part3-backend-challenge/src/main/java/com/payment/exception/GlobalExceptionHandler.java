@@ -19,7 +19,7 @@ import java.util.Map;
  */
 @Produces
 @Singleton
-@Requires(classes = {NotFoundException.class, ExceptionHandler.class})
+@Requires(classes = {NotFoundException.class, ValidationException.class, ExceptionHandler.class})
 public class GlobalExceptionHandler implements ExceptionHandler<Exception, HttpResponse<Map<String, Object>>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(GlobalExceptionHandler.class);
@@ -32,6 +32,15 @@ public class GlobalExceptionHandler implements ExceptionHandler<Exception, HttpR
             return HttpResponse.notFound(buildErrorResponse(
                 HttpStatus.NOT_FOUND.getCode(),
                 "Not Found",
+                exception.getMessage(),
+                request.getPath()
+            ));
+        }
+
+        if (exception instanceof ValidationException) {
+            return HttpResponse.badRequest(buildErrorResponse(
+                HttpStatus.BAD_REQUEST.getCode(),
+                "Validation Error",
                 exception.getMessage(),
                 request.getPath()
             ));

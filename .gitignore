@@ -1,38 +1,31 @@
-﻿# Node modules
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
-
-# Build outputs
-dist/
-build/
-target/
+```
+# Compiled and build artifacts
 *.class
-*.jar
-*.war
-
-# IDE
-.idea/
-.vscode/
+*.o
+*.obj
+*.out
+# Dependencies
+target/
+# Logs and temp files
+*.log
+*.tmp
 *.swp
-*.swo
-*~
+# Editors
+.vscode/
+.idea/
+# Coverage reports
+coverage/
+htmlcov/
+.coverage
+# Package manager caches
+.mypy_cache/
+.pytest_cache/
+.gradle/
+# System files
 .DS_Store
-
-# Environment
+Thumbs.db
+# Environment files
 .env
 .env.local
-.env.*.local
-
-# Logs
-logs/
-*.log
-
-# Dependencies
-package-lock.json
-yarn.lock
-
-# OS
-Thumbs.db
+*.env.*
+```

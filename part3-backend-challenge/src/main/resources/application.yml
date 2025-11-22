@@ -40,6 +40,20 @@ micronaut:
   swagger-ui:
     enabled: true
 
+cache:
+  caffeine:
+    enabled: true
+    caches:
+      transactions:
+        maximum-size: 1000
+        expire-after-write: 10m
+        expire-after-access: 5m
+
+app:
+  cache:
+    transaction-cache-ttl: 10m
+    transaction-cache-max-size: 1000
+    enabled: true
 
 datasources:
   default:
