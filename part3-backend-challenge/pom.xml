@@ -16,10 +16,11 @@
     </parent>
 
     <properties>
-        <jdk.version>17</jdk.version>
-        <release.version>17</release.version>
+        <jdk.version>21</jdk.version>
+        <release.version>21</release.version>
         <micronaut.version>4.2.0</micronaut.version>
         <micronaut.data.version>4.5.0</micronaut.data.version>
+        <micronaut.openapi.version>5.2.0</micronaut.openapi.version>
         <micronaut.serde.version>2.6.0</micronaut.serde.version>
         <micronaut.runtime>netty</micronaut.runtime>
         <exec.mainClass>com.payment.Application</exec.mainClass>
@@ -48,6 +49,13 @@
         <dependency>
             <groupId>io.micronaut</groupId>
             <artifactId>micronaut-http-client</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- JSON Serialization -->
+        <dependency>
+            <groupId>io.micronaut.serde</groupId>
+            <artifactId>micronaut-serde-jackson</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -81,35 +89,29 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>io.micronaut.openapi</groupId>
-            <artifactId>micronaut-openapi-annotations</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>io.swagger.core.v3</groupId>
             <artifactId>swagger-annotations</artifactId>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>swagger-ui</artifactId>
+            <version>5.1.0</version>
+        </dependency>
 
-        <!-- Management & Health -->
+
+        <!-- Management -->
         <dependency>
             <groupId>io.micronaut</groupId>
             <artifactId>micronaut-management</artifactId>
             <scope>compile</scope>
         </dependency>
 
-        <!-- Serialization -->
-        <dependency>
-            <groupId>io.micronaut.serde</groupId>
-            <artifactId>micronaut-serde-jackson</artifactId>
-            <scope>compile</scope>
-        </dependency>
-
-        <!-- Lombok (Optional - for cleaner code) -->
+        <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.30</version>
+            <version>1.18.36</version>
             <scope>provided</scope>
         </dependency>
 
@@ -123,12 +125,6 @@
             <groupId>jakarta.validation</groupId>
             <artifactId>jakarta.validation-api</artifactId>
             <version>3.0.2</version>
-        </dependency>
-
-        <!-- Reactor Core for reactive programming -->
-        <dependency>
-            <groupId>io.projectreactor</groupId>
-            <artifactId>reactor-core</artifactId>
         </dependency>
 
         <!-- Logging -->
@@ -165,6 +161,13 @@
             <version>3.24.2</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- REACTIVE STREAMS (FIXED: THIS WAS MISSING) -->
+        <dependency>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-core</artifactId>
+            <version>3.6.0</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -176,15 +179,17 @@
                     <configFile>aot-${packaging}.properties</configFile>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
                 <configuration>
                     <annotationProcessorPaths combine.self="override">
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
-                            <version>1.18.30</version>
+                            <version>1.18.36</version>
                         </path>
                         <path>
                             <groupId>io.micronaut</groupId>
@@ -198,13 +203,18 @@
                         </path>
                         <path>
                             <groupId>io.micronaut.validation</groupId>
-                            <artifactId>micronaut-validation</artifactId>
+                            <artifactId>micronaut-validation-processor</artifactId>
                             <version>${micronaut.version}</version>
                         </path>
                         <path>
                             <groupId>io.micronaut.openapi</groupId>
                             <artifactId>micronaut-openapi</artifactId>
-                            <version>5.2.0</version>
+                            <version>${micronaut.openapi.version}</version>
+                        </path>
+                        <path>
+                            <groupId>io.micronaut.serde</groupId>
+                            <artifactId>micronaut-serde-processor</artifactId>
+                            <version>${micronaut.serde.version}</version>
                         </path>
                     </annotationProcessorPaths>
                     <compilerArgs>
