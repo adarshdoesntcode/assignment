@@ -14,10 +14,16 @@ import io.swagger.v3.oas.annotations.Operation;
 import com.payment.entity.TransactionMaster;
 import com.payment.dto.TransactionResponseDTO;
 import com.payment.dto.TransactionSearchRequest;
+import com.payment.dto.TransactionRequest;
+import com.payment.dto.MerchantTransactionResponse;
 import com.payment.service.TransactionService;
 import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
+
+import java.time.LocalDate;
 import java.util.Optional;
 
 /**
@@ -61,11 +67,26 @@ public class TransactionController {
     @Get("/{merchantId}/transactions")
     @Operation(
         summary = "Get merchant transactions",
-        description = "Returns list of all transactions for a merchant"
+        description = "Returns filtered and paginated list of transactions for a merchant with summary information"
     )
-    public HttpResponse<?> getTransactions(@PathVariable String merchantId) {
-        var transactions = transactionService.getAllTransactionsByMerchant(merchantId);
-        return HttpResponse.ok(transactions);
+    public HttpResponse<MerchantTransactionResponse> getTransactions(
+            @PathVariable String merchantId,
+            @QueryValue(defaultValue = "0") @Valid Integer page,
+            @QueryValue(defaultValue = "20") @Valid Integer size,
+            @QueryValue @Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}", message = "startDate must be in ISO date format (YYYY-MM-DD)") String startDate,
+            @QueryValue @Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}", message = "endDate must be in ISO date format (YYYY-MM-DD)") String endDate,
+            @QueryValue String status) {
+        
+        TransactionRequest request = TransactionRequest.builder()
+                .page(page)
+                .size(size)
+                .startDate(startDate != null ? LocalDate.parse(startDate) : null)
+                .endDate(endDate != null ? LocalDate.parse(endDate) : null)
+                .status(status)
+                .build();
+        
+        MerchantTransactionResponse response = transactionService.getMerchantTransactions(merchantId, request);
+        return HttpResponse.ok(response);
     }
 
     @Post("/{merchantId}/transactions/create")
