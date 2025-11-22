@@ -27,19 +27,18 @@ micronaut:
       swagger:
         paths: classpath:META-INF/swagger
         mapping: /swagger/**
-      swagger-ui:
-        paths: classpath:META-INF/swagger/views/swagger-ui
-        mapping: /swagger-ui/**
+      rapidoc:
+        paths: classpath:META-INF/swagger/views/rapidoc
+        mapping: /rapidoc/**
 
   openapi:
     enabled: true
-  views:
-    swagger:
-      enabled: true
+    views:
+      spec: rapidoc.enabled=true,rapidoc.theme=dark
 
-  swagger-ui:
-    enabled: true
-
+  serde:
+    serialization:
+      inclusion: ALWAYS
 
 datasources:
   default:
@@ -93,13 +92,3 @@ logger:
     com.payment: INFO
     io.micronaut: INFO
     io.micronaut.data: DEBUG
-
-# OpenAPI Configuration
-micronaut:
-  openapi:
-    enabled: true
-  views:
-    swagger:
-      enabled: true
-swagger-ui:
-  enabled: true
