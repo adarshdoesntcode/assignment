@@ -1,8 +1,10 @@
 package com.payment.service;
 
-import com.payment.dto.CreateMerchantRequest;
-import com.payment.dto.MerchantListResponse;
-import com.payment.dto.MerchantSearchRequest;
+import com.payment.dto.merchant.CreateMerchantRequest;
+import com.payment.dto.merchant.MerchantListResponse;
+import com.payment.dto.merchant.MerchantResponse;
+import com.payment.dto.merchant.MerchantSearchRequest;
+import com.payment.dto.merchant.UpdateMerchantRequest;
 import com.payment.entity.Merchant;
 import com.payment.repository.MerchantRepository;
 import io.micronaut.data.model.Page;
@@ -231,7 +233,7 @@ class MerchantServiceTest {
                 when(merchantRepository.findById("MCH-00001")).thenReturn(java.util.Optional.of(testMerchant1));
 
                 // Act
-                com.payment.dto.MerchantResponse response = merchantService.getMerchantById("MCH-00001");
+                MerchantResponse response = merchantService.getMerchantById("MCH-00001");
 
                 // Assert
                 assertThat(response).isNotNull();
@@ -275,7 +277,7 @@ class MerchantServiceTest {
                 when(merchantRepository.findById("MCH-00003")).thenReturn(java.util.Optional.of(inactiveMerchant));
 
                 // Act
-                com.payment.dto.MerchantResponse response = merchantService.getMerchantById("MCH-00003");
+                MerchantResponse response = merchantService.getMerchantById("MCH-00003");
 
                 // Assert - inactive merchants are now returned
                 assertThat(response).isNotNull();
@@ -327,14 +329,14 @@ class MerchantServiceTest {
                 when(merchantRepository.update(any(Merchant.class)))
                                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-                com.payment.dto.UpdateMerchantRequest updateRequest = com.payment.dto.UpdateMerchantRequest.builder()
+                UpdateMerchantRequest updateRequest = UpdateMerchantRequest.builder()
                                 .email("newemail@techhub.com")
                                 .phone("+1-555-9999")
                                 .isActive(false)
                                 .build();
 
                 // Act
-                com.payment.dto.MerchantResponse response = merchantService.updateMerchant("MCH-00001", updateRequest);
+                MerchantResponse response = merchantService.updateMerchant("MCH-00001", updateRequest);
 
                 // Assert
                 assertThat(response).isNotNull();
@@ -353,12 +355,12 @@ class MerchantServiceTest {
                 when(merchantRepository.update(any(Merchant.class)))
                                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-                com.payment.dto.UpdateMerchantRequest updateRequest = com.payment.dto.UpdateMerchantRequest.builder()
+                UpdateMerchantRequest updateRequest = UpdateMerchantRequest.builder()
                                 .email("updatedemail@techhub.com")
                                 .build();
 
                 // Act
-                com.payment.dto.MerchantResponse response = merchantService.updateMerchant("MCH-00001", updateRequest);
+                MerchantResponse response = merchantService.updateMerchant("MCH-00001", updateRequest);
 
                 // Assert
                 assertThat(response).isNotNull();
@@ -377,12 +379,12 @@ class MerchantServiceTest {
                 when(merchantRepository.update(any(Merchant.class)))
                                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-                com.payment.dto.UpdateMerchantRequest updateRequest = com.payment.dto.UpdateMerchantRequest.builder()
+                UpdateMerchantRequest updateRequest = UpdateMerchantRequest.builder()
                                 .phone("+1-555-8888")
                                 .build();
 
                 // Act
-                com.payment.dto.MerchantResponse response = merchantService.updateMerchant("MCH-00001", updateRequest);
+                MerchantResponse response = merchantService.updateMerchant("MCH-00001", updateRequest);
 
                 // Assert
                 assertThat(response).isNotNull();
@@ -401,12 +403,12 @@ class MerchantServiceTest {
                 when(merchantRepository.update(any(Merchant.class)))
                                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-                com.payment.dto.UpdateMerchantRequest updateRequest = com.payment.dto.UpdateMerchantRequest.builder()
+                UpdateMerchantRequest updateRequest = UpdateMerchantRequest.builder()
                                 .isActive(false)
                                 .build();
 
                 // Act
-                com.payment.dto.MerchantResponse response = merchantService.updateMerchant("MCH-00001", updateRequest);
+                MerchantResponse response = merchantService.updateMerchant("MCH-00001", updateRequest);
 
                 // Assert
                 assertThat(response).isNotNull();
@@ -423,7 +425,7 @@ class MerchantServiceTest {
                 // Arrange - Merchant doesn't exist
                 when(merchantRepository.findById("MCH-99999")).thenReturn(java.util.Optional.empty());
 
-                com.payment.dto.UpdateMerchantRequest updateRequest = com.payment.dto.UpdateMerchantRequest.builder()
+                UpdateMerchantRequest updateRequest = UpdateMerchantRequest.builder()
                                 .email("test@example.com")
                                 .build();
 
@@ -439,7 +441,7 @@ class MerchantServiceTest {
         @Test
         void testUpdateMerchantInvalidId() {
                 // Arrange - Invalid merchant ID format
-                com.payment.dto.UpdateMerchantRequest updateRequest = com.payment.dto.UpdateMerchantRequest.builder()
+                UpdateMerchantRequest updateRequest = UpdateMerchantRequest.builder()
                                 .email("test@example.com")
                                 .build();
 
@@ -456,7 +458,7 @@ class MerchantServiceTest {
         @Test
         void testUpdateMerchantNullId() {
                 // Arrange - Null ID
-                com.payment.dto.UpdateMerchantRequest updateRequest = com.payment.dto.UpdateMerchantRequest.builder()
+                UpdateMerchantRequest updateRequest = UpdateMerchantRequest.builder()
                                 .email("test@example.com")
                                 .build();
 
@@ -473,7 +475,7 @@ class MerchantServiceTest {
         @Test
         void testUpdateMerchantNoFieldsProvided() {
                 // Arrange - No fields provided for update
-                com.payment.dto.UpdateMerchantRequest updateRequest = com.payment.dto.UpdateMerchantRequest.builder()
+                UpdateMerchantRequest updateRequest = UpdateMerchantRequest.builder()
                                 .build();
 
                 // Act & Assert
@@ -526,7 +528,7 @@ class MerchantServiceTest {
                 when(merchantRepository.save(any(Merchant.class))).thenReturn(savedMerchant);
 
                 // Act
-                com.payment.dto.MerchantResponse response = merchantService.createMerchant(request);
+                MerchantResponse response = merchantService.createMerchant(request);
 
                 // Assert
                 assertThat(response).isNotNull();
@@ -571,7 +573,7 @@ class MerchantServiceTest {
                 when(merchantRepository.save(any(Merchant.class))).thenReturn(savedMerchant);
 
                 // Act
-                com.payment.dto.MerchantResponse response = merchantService.createMerchant(request);
+                MerchantResponse response = merchantService.createMerchant(request);
 
                 // Assert
                 assertThat(response).isNotNull();
@@ -641,7 +643,7 @@ class MerchantServiceTest {
                 when(merchantRepository.save(any(Merchant.class))).thenReturn(savedMerchant);
 
                 // Act
-                com.payment.dto.MerchantResponse response = merchantService.createMerchant(request);
+                MerchantResponse response = merchantService.createMerchant(request);
 
                 // Assert
                 assertThat(response).isNotNull();
@@ -744,7 +746,7 @@ class MerchantServiceTest {
                 when(merchantRepository.save(any(Merchant.class))).thenReturn(savedMerchant);
 
                 // Act
-                com.payment.dto.MerchantResponse response = merchantService.createMerchant(request);
+                MerchantResponse response = merchantService.createMerchant(request);
 
                 // Assert
                 assertThat(response).isNotNull();

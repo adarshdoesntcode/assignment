@@ -104,12 +104,6 @@
             <artifactId>micronaut-views-rocker</artifactId>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>io.micronaut</groupId>
-            <artifactId>micronaut-http-server-netty</artifactId>
-            <scope>compile</scope>
-        </dependency>
-
 
         <!-- Management -->
         <dependency>

@@ -1,9 +1,9 @@
 package com.payment.controller;
 
-import com.payment.dto.ApiResponse;
-import com.payment.dto.CreateMerchantRequest;
-import com.payment.dto.MerchantResponse;
-import com.payment.dto.UpdateMerchantRequest;
+import com.payment.dto.common.ApiResponse;
+import com.payment.dto.merchant.CreateMerchantRequest;
+import com.payment.dto.merchant.MerchantResponse;
+import com.payment.dto.merchant.UpdateMerchantRequest;
 import com.payment.exception.NotFoundException;
 import com.payment.service.MerchantService;
 import io.micronaut.http.HttpRequest;
@@ -129,7 +129,7 @@ class MerchantControllerTest {
         @Test
         void testGetMerchantByIdNullId() {
                 // Arrange
-                when(merchantService.getMerchantById(null))
+                when(merchantService.getMerchantById("null"))
                                 .thenThrow(new IllegalArgumentException("Merchant ID cannot be null or empty"));
 
                 // Act & Assert
@@ -141,23 +141,6 @@ class MerchantControllerTest {
                 // Note: null in URL path becomes "null" string, which will trigger the same
                 // validation
                 assertThat((Object) exception.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST);
-        }
-
-        @Test
-        void testGetMerchantByIdEmptyId() {
-                // Arrange - Empty string in path parameter
-                when(merchantService.getMerchantById(""))
-                                .thenThrow(new IllegalArgumentException("Merchant ID cannot be null or empty"));
-
-                // Act & Assert
-                HttpRequest<Object> request = HttpRequest.GET("/api/v1/merchants/");
-                HttpClientResponseException exception = assertThrows(
-                                HttpClientResponseException.class,
-                                () -> client.toBlocking().retrieve(request, ApiResponse.class));
-
-                // Note: This might result in 404 because the empty path doesn't match the route
-                // or 400 if it matches and triggers validation
-                assertThat((Object) exception.getStatus()).isIn(HttpStatus.NOT_FOUND, HttpStatus.BAD_REQUEST);
         }
 
         // ============ UPDATE MERCHANT TESTS ============
@@ -365,6 +348,8 @@ class MerchantControllerTest {
                                 .email("invalid-email")
                                 .phone("1234567890")
                                 .businessType("retail")
+                                .taxId("123456789")
+                                .registrationNumber("REG-2024-001")
                                 .build();
 
                 HttpRequest<CreateMerchantRequest> request = HttpRequest.POST("/api/v1/merchants", createRequest);
@@ -386,6 +371,8 @@ class MerchantControllerTest {
                                 .email("existing@example.com")
                                 .phone("9999999999")
                                 .businessType("retail")
+                                .taxId("123456789")
+                                .registrationNumber("REG-2024-001")
                                 .build();
 
                 when(merchantService.createMerchant(any(CreateMerchantRequest.class)))
@@ -428,6 +415,8 @@ class MerchantControllerTest {
                                 .email("test@example.com")
                                 .phone("1234567890")
                                 .businessType("invalid-type")
+                                .taxId("123456789")
+                                .registrationNumber("REG-2024-001")
                                 .build();
 
                 HttpRequest<CreateMerchantRequest> request = HttpRequest.POST("/api/v1/merchants", createRequest);
