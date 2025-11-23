@@ -1,6 +1,7 @@
 import { get } from "./api";
 import { TransactionResponse } from "../types/transaction";
-import { FilterState } from "@/types/common";
+import { TransactionReportsResponse } from "../types/reports";
+import { FilterState } from "../types/common";
 
 const TRANSACTION_BASE = "/transactions";
 
@@ -24,10 +25,11 @@ export const getTransactions = async (
     params.endDate = filters.endDate;
   }
 
-  const url = `${TRANSACTION_BASE}/${merchantId}`;
-
   try {
-    const response = await get<TransactionResponse>(url, { params });
+    const response = await get<TransactionResponse>(
+      `${TRANSACTION_BASE}/${merchantId}`,
+      { params }
+    );
     return response;
   } catch (error) {
     console.error("Error fetching transactions:", error);
@@ -35,6 +37,17 @@ export const getTransactions = async (
   }
 };
 
+export const getTransactionReports = async (): Promise<TransactionReportsResponse> => {
+  try {
+    const response = await get<TransactionReportsResponse>(`${TRANSACTION_BASE}/reports`);
+    return response;
+  } catch (error) {
+    console.error("Error fetching transaction reports:", error);
+    throw error;
+  }
+};
+
 export default {
   getTransactions,
+  getTransactionReports,
 };

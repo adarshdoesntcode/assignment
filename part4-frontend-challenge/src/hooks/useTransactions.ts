@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { getTransactions } from "../services/transactionService";
+import { FilterState } from "../types/common";
 import {
-  FilterState,
   Transaction,
   TransactionSummary,
   PaginationInfo,

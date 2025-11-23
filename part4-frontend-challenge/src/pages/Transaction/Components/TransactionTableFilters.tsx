@@ -1,4 +1,3 @@
-import { Card, CardContent } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -13,14 +12,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { CalendarIcon, X } from "lucide-react";
+import { CalendarIcon, X, Filter } from "lucide-react";
 import { format } from "date-fns";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { DateRange } from "react-day-picker";
 
 interface TransactionTableFiltersProps {
-  handleStatusChange: (status: string) => void;
-  handleDateRangeChange: (startDate: string, endDate: string) => void;
+  onApplyFilters: (status: string, startDate: string, endDate: string) => void;
   handleReset: () => void;
   startDate: string;
   endDate: string;
@@ -28,105 +26,120 @@ interface TransactionTableFiltersProps {
 }
 
 function TransactionTableFilters({
-  handleStatusChange,
-  handleDateRangeChange,
+  onApplyFilters,
   startDate,
   endDate,
   status,
   handleReset,
 }: TransactionTableFiltersProps) {
+  const [localStatus, setLocalStatus] = useState(status);
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: startDate ? new Date(startDate) : undefined,
     to: endDate ? new Date(endDate) : undefined,
   });
 
+  useEffect(() => {
+    setLocalStatus(status);
+    setDateRange({
+      from: startDate ? new Date(startDate) : undefined,
+      to: endDate ? new Date(endDate) : undefined,
+    });
+  }, [status, startDate, endDate]);
+
   const handleDateSelect = (range: DateRange | undefined) => {
-    if (range) {
-      setDateRange(range);
-      if (range.from && range.to) {
-        handleDateRangeChange(
-          range.from.toISOString().split("T")[0],
-          range.to.toISOString().split("T")[0]
-        );
-      }
-    }
+    setDateRange(range);
   };
 
   const handleStatusSelect = (value: string) => {
-    handleStatusChange(value === "all" ? "" : value);
+    setLocalStatus(value);
+  };
+
+  const applyFilters = () => {
+    const start = dateRange?.from
+      ? dateRange.from.toISOString().split("T")[0]
+      : "";
+    const end = dateRange?.to ? dateRange.to.toISOString().split("T")[0] : "";
+    onApplyFilters(localStatus, start, end);
   };
 
   const clearFilters = () => {
     setDateRange({ from: undefined, to: undefined });
+    setLocalStatus("");
     handleReset();
   };
 
+  const hasLocalFilters = localStatus || dateRange?.from || dateRange?.to;
   const hasActiveFilters = status || startDate || endDate;
 
   return (
-    <Card className="mb-5">
-      <CardContent>
-        <div className="flex flex-col gap-4 sm:flex-row">
-          <div className="flex-1">
-            <Select value={status} onValueChange={handleStatusSelect}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="completed">Completed</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="failed">Failed</SelectItem>
-                <SelectItem value="reversed">Reversed</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex-1">
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="justify-start w-full font-normal text-left"
-                >
-                  <CalendarIcon className="w-4 h-4 mr-2" />
-                  {dateRange?.from ? (
-                    dateRange?.to ? (
-                      <>
-                        {format(dateRange.from, "MMM dd, yyyy")} -{" "}
-                        {format(dateRange.to, "MMM dd, yyyy")}
-                      </>
-                    ) : (
-                      format(dateRange.from, "MMM dd, yyyy")
-                    )
+    <div className="flex flex-col gap-4 mb-6 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:flex-1">
+        <div className="w-full sm:w-auto">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className="justify-start w-full font-normal text-left sm:w-[300px]"
+              >
+                <CalendarIcon className="w-4 h-4 mr-2" />
+                {dateRange?.from ? (
+                  dateRange?.to ? (
+                    <>
+                      {format(dateRange.from, "MMM dd, yyyy")} -{" "}
+                      {format(dateRange.to, "MMM dd, yyyy")}
+                    </>
                   ) : (
-                    <span>Pick a date range</span>
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="range"
-                  selected={dateRange}
-                  onSelect={handleDateSelect}
-                  numberOfMonths={2}
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
-          {hasActiveFilters && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={clearFilters}
-              className="h-8 px-2 lg:px-3"
-            >
-              <X className="w-4 h-4 mr-2" />
-              Clear filters
-            </Button>
-          )}
+                    format(dateRange.from, "MMM dd, yyyy")
+                  )
+                ) : (
+                  <span className="text-muted-foreground">
+                    Pick a date range
+                  </span>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="range"
+                selected={dateRange}
+                onSelect={handleDateSelect}
+                numberOfMonths={2}
+              />
+            </PopoverContent>
+          </Popover>
         </div>
-      </CardContent>
-    </Card>
+        <div className="w-full sm:w-[200px]">
+          <Select value={localStatus} onValueChange={handleStatusSelect}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="completed">Completed</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="failed">Failed</SelectItem>
+              <SelectItem value="reversed">Reversed</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="flex gap-2">
+        <Button
+          onClick={applyFilters}
+          disabled={!hasLocalFilters}
+          variant={"secondary"}
+        >
+          <Filter className="w-4 h-4" />
+          Apply Filters
+        </Button>
+        {hasActiveFilters && (
+          <Button variant="outline" onClick={clearFilters}>
+            <X className="w-4 h-4 " />
+            Clear
+          </Button>
+        )}
+      </div>
+    </div>
   );
 }
 

@@ -1,5 +1,13 @@
-import { get } from "./api";
-import { MerchantResponse, MerchantFilterState } from "../types/merchant";
+import { get, put, post } from "./api";
+import {
+  MerchantResponse,
+  MerchantFilterState,
+  MerchantDetailResponse,
+  MerchantUpdatePayload,
+  MerchantUpdateResponse,
+  MerchantCreatePayload,
+  MerchantCreateResponse
+} from "../types/merchant";
 
 const MERCHANT_BASE = "/merchants";
 
@@ -36,6 +44,43 @@ export const getMerchants = async (
     return response;
   } catch (error) {
     console.error("Error fetching merchants:", error);
+    throw error;
+  }
+};
+
+export const getMerchantDetails = async (
+  merchantId: string
+): Promise<MerchantDetailResponse> => {
+  try {
+    const response = await get<MerchantDetailResponse>(`${MERCHANT_BASE}/${merchantId}`);
+    return response;
+  } catch (error) {
+    console.error("Error fetching merchant details:", error);
+    throw error;
+  }
+};
+
+export const updateMerchant = async (
+  merchantId: string,
+  payload: MerchantUpdatePayload
+): Promise<MerchantUpdateResponse> => {
+  try {
+    const response = await put<MerchantUpdateResponse>(`${MERCHANT_BASE}/${merchantId}`, payload);
+    return response;
+  } catch (error) {
+    console.error("Error updating merchant:", error);
+    throw error;
+  }
+};
+
+export const createMerchant = async (
+  payload: MerchantCreatePayload
+): Promise<MerchantCreateResponse> => {
+  try {
+    const response = await post<MerchantCreateResponse>(MERCHANT_BASE, payload);
+    return response;
+  } catch (error) {
+    console.error("Error creating merchant:", error);
     throw error;
   }
 };

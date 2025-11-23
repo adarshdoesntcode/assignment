@@ -19,7 +19,7 @@ export const TransactionSummary = ({ summary }: TransactionSummaryProps) => {
   };
 
   return (
-    <div className="grid grid-cols-1 gap-6 my-8 sm:grid-cols-2 lg:grid-cols-5">
+    <div className="grid grid-cols-1 gap-6 my-4 sm:grid-cols-2 lg:grid-cols-5">
       <div className="bg-white p-6 rounded-lg shadow-sm hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 border border-slate-100">
         <div className="mb-2 text-sm font-medium tracking-wider uppercase text-slate-500">
           Total Transactions

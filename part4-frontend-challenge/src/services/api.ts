@@ -1,8 +1,8 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosError } from 'axios';
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosError } from "axios";
 import { toast } from "sonner";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api/v1';
-const API_TIMEOUT = parseInt(import.meta.env.VITE_API_TIMEOUT || '30000');
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api/v1";
+const API_TIMEOUT = parseInt(import.meta.env.VITE_API_TIMEOUT || "30000");
 
 /**
  * Axios instance with default configuration
@@ -11,7 +11,7 @@ const apiClient: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
   timeout: API_TIMEOUT,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
@@ -26,11 +26,14 @@ apiClient.interceptors.request.use(
     //   config.headers.Authorization = `Bearer ${token}`;
     // }
 
-    console.log(`[API Request] ${config.method?.toUpperCase()} ${config.url}`, config.params);
+    console.log(
+      `[API Request] ${config.method?.toUpperCase()} ${config.url}`,
+      config.params
+    );
     return config;
   },
   (error) => {
-    console.error('[API Request Error]', error);
+    console.error("[API Request Error]", error);
     return Promise.reject(error);
   }
 );
@@ -44,10 +47,17 @@ apiClient.interceptors.response.use(
     return response;
   },
   (error: AxiosError) => {
-    console.error('[API Response Error]', error.response?.status, error.message);
+    console.error(
+      "[API Response Error]",
+      error.response?.status,
+      error.message
+    );
 
     const status = error.response?.status;
-    const errorMessage = (error.response?.data as any)?.message || error.message || "An unexpected error occurred";
+    const errorMessage =
+      (error.response?.data as any)?.message ||
+      error.message ||
+      "An unexpected error occurred";
 
     // Handle specific error cases with Toasts
     if (status === 400) {
@@ -69,28 +79,42 @@ apiClient.interceptors.response.use(
 /**
  * Generic GET request
  */
-export const get = <T>(url: string, config?: AxiosRequestConfig): Promise<T> => {
+export const get = <T>(
+  url: string,
+  config?: AxiosRequestConfig
+): Promise<T> => {
   return apiClient.get<T>(url, config).then((response) => response.data);
 };
 
 /**
  * Generic POST request
  */
-export const post = <T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> => {
+export const post = <T>(
+  url: string,
+  data?: unknown,
+  config?: AxiosRequestConfig
+): Promise<T> => {
   return apiClient.post<T>(url, data, config).then((response) => response.data);
 };
 
 /**
  * Generic PUT request
  */
-export const put = <T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> => {
+export const put = <T>(
+  url: string,
+  data?: unknown,
+  config?: AxiosRequestConfig
+): Promise<T> => {
   return apiClient.put<T>(url, data, config).then((response) => response.data);
 };
 
 /**
  * Generic DELETE request
  */
-export const del = <T>(url: string, config?: AxiosRequestConfig): Promise<T> => {
+export const del = <T>(
+  url: string,
+  config?: AxiosRequestConfig
+): Promise<T> => {
   return apiClient.delete<T>(url, config).then((response) => response.data);
 };
 

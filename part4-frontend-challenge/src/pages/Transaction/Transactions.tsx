@@ -10,18 +10,22 @@ import { DEFAULT_FILTERS } from "@/types/transaction";
 import { useTransactions } from "@/hooks/useTransactions";
 import { TransactionSummary } from "./Components/TransactionSummary";
 import { TransactionList } from "./Components/TransactionList";
+import { LayoutDashboardIcon, Table } from "lucide-react";
+import { ExportTransactions } from "./Components/ExportTransactions";
 
 export const Transactions = ({
   merchantId,
   showTitle = true,
   showPagination = true,
   showFilters = true,
+  showExport = false,
   defaultFilters = DEFAULT_FILTERS,
 }: {
   merchantId?: string;
   showPagination?: boolean;
   showFilters?: boolean;
   showTitle?: boolean;
+  showExport?: boolean;
   defaultFilters?: FilterState;
 }) => {
   const [id, setId] = useState(merchantId || "MCH-00001");
@@ -56,15 +60,20 @@ export const Transactions = ({
     setFilters({ ...filters, size });
   };
 
-  const handleStatusChange = (status: string) => {
-    setStatus(status);
-    setFilters({ ...filters, status });
-  };
-
-  const handleDateRangeChange = (startDate: string, endDate: string) => {
-    setStartDate(startDate);
-    setEndDate(endDate);
-    setFilters({ ...filters, startDate, endDate });
+  const handleApplyFilters = (
+    newStatus: string,
+    newStartDate: string,
+    newEndDate: string
+  ) => {
+    setStatus(newStatus);
+    setStartDate(newStartDate);
+    setEndDate(newEndDate);
+    setFilters({
+      ...filters,
+      status: newStatus,
+      startDate: newStartDate,
+      endDate: newEndDate,
+    });
   };
 
   const handleReset = () => {
@@ -119,16 +128,31 @@ export const Transactions = ({
       )}
       {data && (
         <>
+          {!showTitle && (
+            <h3 className="flex items-center text-lg font-semibold">
+              <LayoutDashboardIcon className="mr-2" />
+              Transaction Stats
+            </h3>
+          )}
+
           <TransactionSummary summary={data?.summary} />
           {showFilters && (
             <TransactionTableFilters
               handleReset={handleReset}
-              handleStatusChange={handleStatusChange}
-              handleDateRangeChange={handleDateRangeChange}
+              onApplyFilters={handleApplyFilters}
               startDate={startDate}
               endDate={endDate}
               status={status}
             />
+          )}
+          {showExport && (
+            <div className="flex items-center justify-between">
+              <h3 className="flex items-center text-lg font-semibold">
+                <Table className="mr-2" />
+                Recent Transactions
+              </h3>
+              <ExportTransactions merchantId={id} />
+            </div>
           )}
           <TransactionList transactions={data.transactions || []} />
           {showPagination && (
