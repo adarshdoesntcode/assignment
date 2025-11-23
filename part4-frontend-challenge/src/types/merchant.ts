@@ -2,6 +2,7 @@ export interface Merchant {
   merchantId: string;
   merchantName: string;
   businessName: string;
+  isActive: boolean;
   email: string;
   phone: string;
   businessType: string;
@@ -30,13 +31,20 @@ export interface MerchantResponse {
 export interface MerchantFilterState {
   page: number;
   size: number;
+  isActive?: boolean;
   merchantName?: string;
   merchantId?: string;
   sortBy?: string;
   sortDirection?: string;
 }
 
-export const DEFAULT_FILTERS: MerchantFilterState = {
+export const ACTIVE_FILTERS: MerchantFilterState = {
   page: 0,
   size: 10,
+  isActive: true,
+};
+export const INACTIVE_FILTERS: MerchantFilterState = {
+  page: 0,
+  size: 10,
+  isActive: false,
 };

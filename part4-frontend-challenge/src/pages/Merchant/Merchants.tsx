@@ -5,7 +5,7 @@ import { Spinner } from "@/components/ui/spinner";
 import MerchantList from "./components/MerchantList";
 import TablePagination from "@/components/common/TablePagination";
 import { useState, useEffect } from "react";
-import { DEFAULT_FILTERS, MerchantFilterState } from "@/types/merchant";
+import { ACTIVE_FILTERS, MerchantFilterState } from "@/types/merchant";
 import { useMerchants } from "@/hooks/useMerchants";
 import {
   Select,
@@ -14,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 /**
  * Merchants Page Component
@@ -153,7 +154,8 @@ export const Merchants = () => {
   const [searchType, setSearchType] = useState<"merchantId" | "merchantName">(
     "merchantId"
   );
-  const [filters, setFilters] = useState<MerchantFilterState>(DEFAULT_FILTERS);
+  const [tab, setTab] = useState("active");
+  const [filters, setFilters] = useState<MerchantFilterState>(ACTIVE_FILTERS);
   const [size, setSize] = useState(10);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
@@ -242,8 +244,9 @@ export const Merchants = () => {
   };
 
   const handleReset = () => {
-    setFilters(DEFAULT_FILTERS);
+    setFilters(ACTIVE_FILTERS);
     setSearchValue("");
+    setTab("active");
     setSearchType("merchantId");
   };
 
@@ -251,48 +254,9 @@ export const Merchants = () => {
     <main className="container px-4 py-8 mx-auto space-y-6">
       <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-end">
         <div className="flex-1">
-          <h1 className="mb-4 text-2xl font-bold">Merchant Dashboard</h1>
-          <form onSubmit={handleSubmit} className="flex w-full gap-2 md:w-auto">
-            <Select
-              value={searchType}
-              onValueChange={(value) =>
-                setSearchType(value as "merchantId" | "merchantName")
-              }
-            >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="merchantId">Merchant ID</SelectItem>
-
-                <SelectItem value="merchantName">Merchant Name</SelectItem>
-              </SelectContent>
-            </Select>
-            <Input
-              className="w-full md:w-[300px]"
-              value={searchValue}
-              placeholder={`Search by ${
-                searchType === "merchantId" ? "Merchant ID" : "Merchant Name"
-              }`}
-              autoComplete="off"
-              onChange={(e) => setSearchValue(e.target.value)}
-            />
-            <Button type="submit" size="default">
-              Search
-            </Button>
-            {(filters.merchantId || filters.merchantName) && (
-              <Button
-                type="button"
-                variant="outline"
-                size="default"
-                onClick={handleReset}
-              >
-                Reset
-              </Button>
-            )}
-          </form>
+          <h1 className="text-2xl font-bold ">Merchant Dashboard</h1>
+          <p className="text-sm text-muted-foreground">All the merchants</p>
         </div>
-        <Button size="lg">New +</Button>
       </div>
 
       {loading && (
@@ -310,12 +274,114 @@ export const Merchants = () => {
 
       {data && !loading && (
         <>
-          <MerchantList
-            merchants={data.merchants}
-            sortBy={filters.sortBy}
-            sortDirection={filters.sortDirection}
-            onSort={handleSort}
-          />
+          <Tabs
+            value={tab}
+            onValueChange={(value: string) => {
+              setTab(value);
+              if (value === "inactive") {
+                setFilters((prev) => {
+                  return {
+                    ...prev,
+                    isActive: false,
+                  };
+                });
+              } else if (value === "active") {
+                setFilters((prev) => {
+                  return {
+                    ...prev,
+                    isActive: true,
+                  };
+                });
+              }
+            }}
+          >
+            <div className="flex flex-col items-stretch justify-between gap-4 mb-2 md:flex-row md:items-center">
+              <div className="flex flex-col items-stretch gap-4 md:flex-row md:items-center">
+                <TabsList>
+                  <TabsTrigger value="active">Active</TabsTrigger>
+                  <TabsTrigger value="inactive">Not Active</TabsTrigger>
+                </TabsList>
+                <form
+                  onSubmit={handleSubmit}
+                  className="flex flex-col w-full gap-2 sm:flex-row md:w-auto"
+                >
+                  <Select
+                    value={searchType}
+                    onValueChange={(value) =>
+                      setSearchType(value as "merchantId" | "merchantName")
+                    }
+                  >
+                    <SelectTrigger className="w-full sm:w-[180px]">
+                      <SelectValue placeholder="Select" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="merchantId">Merchant ID</SelectItem>
+
+                      <SelectItem value="merchantName">
+                        Merchant Name
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Input
+                    className="w-full sm:w-auto md:w-[300px]"
+                    value={searchValue}
+                    placeholder={`Search by ${
+                      searchType === "merchantId"
+                        ? "Merchant ID"
+                        : "Merchant Name"
+                    }`}
+                    autoComplete="off"
+                    onChange={(e) => setSearchValue(e.target.value)}
+                  />
+                  <div className="flex gap-2">
+                    <Button
+                      type="submit"
+                      size="default"
+                      variant={"outline"}
+                      className="flex-1 sm:flex-auto"
+                    >
+                      Search
+                    </Button>
+                    {(filters.merchantId || filters.merchantName) && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="default"
+                        onClick={handleReset}
+                        className="flex-1 sm:flex-auto"
+                      >
+                        Reset
+                      </Button>
+                    )}
+                  </div>
+                </form>
+              </div>
+
+              <Button
+                size="default"
+                variant="default"
+                className="w-full md:w-auto"
+              >
+                Add Merchant +
+              </Button>
+            </div>
+            <TabsContent value="active">
+              <MerchantList
+                merchants={data.merchants}
+                sortBy={filters.sortBy}
+                sortDirection={filters.sortDirection}
+                onSort={handleSort}
+              />
+            </TabsContent>
+            <TabsContent value="inactive">
+              <MerchantList
+                merchants={data.merchants}
+                sortBy={filters.sortBy}
+                sortDirection={filters.sortDirection}
+                onSort={handleSort}
+              />
+            </TabsContent>
+          </Tabs>
 
           <TablePagination
             handlePageChange={handlePageChange}

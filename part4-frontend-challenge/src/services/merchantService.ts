@@ -27,6 +27,10 @@ export const getMerchants = async (
     params.sortDirection = filters.sortDirection;
   }
 
+  if (filters.isActive !== undefined) {
+    params.isActive = filters.isActive;
+  }
+
   try {
     const response = await get<MerchantResponse>(MERCHANT_BASE, { params });
     return response;

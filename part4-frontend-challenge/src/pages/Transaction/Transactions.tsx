@@ -11,10 +11,22 @@ import { useTransactions } from "@/hooks/useTransactions";
 import { TransactionSummary } from "./Components/TransactionSummary";
 import { TransactionList } from "./Components/TransactionList";
 
-export const Transactions = () => {
-  const [id, setId] = useState("MCH-00001");
+export const Transactions = ({
+  merchantId,
+  showTitle = true,
+  showPagination = true,
+  showFilters = true,
+  defaultFilters = DEFAULT_FILTERS,
+}: {
+  merchantId?: string;
+  showPagination?: boolean;
+  showFilters?: boolean;
+  showTitle?: boolean;
+  defaultFilters?: FilterState;
+}) => {
+  const [id, setId] = useState(merchantId || "MCH-00001");
   const [searchValue, setSearchValue] = useState("");
-  const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
+  const [filters, setFilters] = useState<FilterState>(defaultFilters);
   const [size, setSize] = useState(10);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -73,21 +85,25 @@ export const Transactions = () => {
 
   return (
     <main className="container px-4 py-8 mx-auto space-y-6">
-      <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
-        <div>
-          <h1 className="text-2xl font-bold">Transaction Dashboard</h1>
-          <p className="text-muted-foreground">Merchant: {data?.merchantId}</p>
+      {showTitle && (
+        <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
+          <div>
+            <h1 className="text-2xl font-bold">Transaction Dashboard</h1>
+            <p className="text-muted-foreground">
+              Merchant: {data?.merchantId}
+            </p>
+          </div>
+          <form onSubmit={handleSubmit} className="w-full md:w-auto">
+            <Input
+              className="w-full md:w-[300px]"
+              value={searchValue}
+              placeholder="Search Merchant Id"
+              autoComplete="off"
+              onChange={(e) => setSearchValue(e.target.value)}
+            />
+          </form>
         </div>
-        <form onSubmit={handleSubmit} className="w-full md:w-auto">
-          <Input
-            className="w-full md:w-[300px]"
-            value={searchValue}
-            placeholder="Search Merchant Id"
-            autoComplete="off"
-            onChange={(e) => setSearchValue(e.target.value)}
-          />
-        </form>
-      </div>
+      )}
 
       {loading && (
         <div className="w-full flex items-center justify-center h-[500px]">
@@ -104,24 +120,27 @@ export const Transactions = () => {
       {data && (
         <>
           <TransactionSummary summary={data?.summary} />
-          <TransactionTableFilters
-            handleReset={handleReset}
-            handleStatusChange={handleStatusChange}
-            handleDateRangeChange={handleDateRangeChange}
-            startDate={startDate}
-            endDate={endDate}
-            status={status}
-          />
+          {showFilters && (
+            <TransactionTableFilters
+              handleReset={handleReset}
+              handleStatusChange={handleStatusChange}
+              handleDateRangeChange={handleDateRangeChange}
+              startDate={startDate}
+              endDate={endDate}
+              status={status}
+            />
+          )}
           <TransactionList transactions={data.transactions || []} />
-
-          <TablePagination
-            handlePageChange={handlePageChange}
-            handlePageSizeChange={handlePageSizeChange}
-            page={page}
-            size={size}
-            totalPages={totalPages}
-            totalElements={totalElements}
-          />
+          {showPagination && (
+            <TablePagination
+              handlePageChange={handlePageChange}
+              handlePageSizeChange={handlePageSizeChange}
+              page={page}
+              size={size}
+              totalPages={totalPages}
+              totalElements={totalElements}
+            />
+          )}
         </>
       )}
     </main>

@@ -2,6 +2,7 @@ import { FilterState } from "./common";
 
 export interface Transaction {
   txnId: number;
+  txnDate: string;
   amount: number;
   currency: string;
   status: "completed" | "pending" | "failed" | "reversed";
