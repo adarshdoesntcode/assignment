@@ -23,7 +23,7 @@ import java.time.LocalDate;
  * Transaction Controller
  * Handles HTTP requests for merchant transaction operations
  */
-@Controller("/api/v1/merchants")
+@Controller("/api/v1/transactions")
 @Tag(name = "Transactions")
 public class TransactionController {
 
@@ -34,7 +34,7 @@ public class TransactionController {
         this.transactionService = transactionService;
     }
 
-    @Get("/{merchantId}/transactions")
+    @Get("/{merchantId}")
     @Operation(summary = "Get merchant transactions", description = "Returns filtered and paginated list of transactions for a merchant with summary information")
     public HttpResponse<ApiResponse<MerchantTransactionResponse>> getTransactions(
             @PathVariable String merchantId,
