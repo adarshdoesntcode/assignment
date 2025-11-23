@@ -1,26 +1,24 @@
-import { useState, useEffect } from 'react';
-import { getTransactions } from '../services/transactionService';
-import { FilterState } from '../types/transaction';
+import { useState, useEffect } from "react";
+import { getTransactions } from "../services/transactionService";
+import {
+  FilterState,
+  Transaction,
+  TransactionSummary,
+  PaginationInfo,
+} from "../types/transaction";
 
-interface Transaction {
-  txnId: number;
-  merchantId: string;
-  amount: number;
-  currency: string;
-  status: string;
-  cardType: string;
-  cardLast4: string;
-  authCode: string;
-  txnDate: string;
-  createdAt: string;
+interface DateRange {
+  start: string;
+  end: string;
 }
 
 interface UseTransactionsResult {
   data: {
+    merchantId: string;
+    dateRange: DateRange;
+    summary: TransactionSummary;
     transactions: Transaction[];
-    totalTransactions: number;
-    page: number;
-    size: number;
+    pagination: PaginationInfo;
   } | null;
   loading: boolean;
   error: Error | null;
@@ -31,7 +29,7 @@ export const useTransactions = (
   merchantId: string,
   filters: FilterState
 ): UseTransactionsResult => {
-  const [data, setData] = useState<UseTransactionsResult['data']>(null);
+  const [data, setData] = useState<UseTransactionsResult["data"]>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -40,10 +38,10 @@ export const useTransactions = (
       setLoading(true);
       setError(null);
       const response = await getTransactions(merchantId, filters);
-      setData(response as any);
+      setData(response.data);
     } catch (err) {
       setError(err as Error);
-      console.error('Error fetching transactions:', err);
+      console.error("Error fetching transactions:", err);
     } finally {
       setLoading(false);
     }
@@ -51,7 +49,14 @@ export const useTransactions = (
 
   useEffect(() => {
     fetchTransactions();
-  }, [merchantId, filters.page, filters.size, filters.status, filters.startDate, filters.endDate]);
+  }, [
+    merchantId,
+    filters.page,
+    filters.size,
+    filters.status,
+    filters.startDate,
+    filters.endDate,
+  ]);
 
   return {
     data,

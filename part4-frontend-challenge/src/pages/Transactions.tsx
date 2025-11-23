@@ -1,63 +1,126 @@
-import { useState } from 'react';
-import { FilterState, DEFAULT_FILTERS } from '../types/transaction';
-import { TransactionList } from '../components/common/TransactionList';
-import { TransactionSummary } from '../components/common/TransactionSummary';
-import { useTransactions } from '../hooks/useTransactions';
+import { useEffect, useState } from "react";
+import { FilterState, DEFAULT_FILTERS } from "../types/transaction";
+import { TransactionList } from "../components/common/TransactionList";
+import { TransactionSummary } from "../components/common/TransactionSummary";
+import { useTransactions } from "../hooks/useTransactions";
+import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
+import TablePagination from "@/components/common/TablePagination";
+import TransactionTableFilters from "@/components/common/TransactionTableFilters";
+import { CloudCog } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 
 /**
  * Transactions Page Component
  * Displays transaction dashboard with summary and list
  */
 export const Transactions = () => {
-  const merchantId = import.meta.env.VITE_DEFAULT_MERCHANT_ID || 'MCH-00001';
-  const [filters] = useState<FilterState>(DEFAULT_FILTERS);
+  const [id, setId] = useState("MCH-00001");
+  const [searchValue, setSearchValue] = useState("");
+  const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
+  const [size, setSize] = useState(10);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalElements, setTotalElements] = useState(0);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [status, setStatus] = useState("");
 
-  const { data, loading, error } = useTransactions(merchantId, filters);
+  console.log(filters);
+
+  const { data, loading, error } = useTransactions(id, filters);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const search = searchValue.trim();
+    if (!search) {
+      return toast.warning("Please enter a search value");
+    }
+    setId(search.toUpperCase());
+  };
+
+  const handlePageChange = (page: number) => {
+    setPage(page);
+    setFilters({ ...filters, page });
+  };
+
+  const handlePageSizeChange = (size: number) => {
+    setSize(size);
+    setFilters({ ...filters, size });
+  };
+
+  const handleStatusChange = (status: string) => {
+    setStatus(status);
+    setFilters({ ...filters, status });
+  };
+
+  const handleDateRangeChange = (startDate: string, endDate: string) => {
+    setStartDate(startDate);
+    setEndDate(endDate);
+    setFilters({ ...filters, startDate, endDate });
+  };
+
+  const handleReset = () => {
+    setFilters(DEFAULT_FILTERS);
+    setStatus("");
+    setStartDate("");
+    setEndDate("");
+  };
+
+  useEffect(() => {
+    if (data && !error) {
+      setTotalPages(data.pagination.totalPages);
+      setPage(data.pagination.page);
+      setSize(data.pagination.size);
+      setTotalElements(data.pagination.totalElements);
+    }
+  }, [data]);
 
   return (
-    <main className="container">
-      <h1>Transaction Dashboard</h1>
-      <p className="subtitle">Merchant: {merchantId}</p>
-
-      {/* TODO: Add TransactionFilters component */}
-      <div className="filters-section">
-        <p style={{ padding: '1rem', background: '#fef3c7', borderRadius: '8px', color: '#92400e' }}>
-          🔧 TODO: Implement TransactionFilters component (date range, status filter)
-        </p>
+    <main className="container mx-auto px-4 py-8 space-y-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h1 className="text-2xl font-bold">Transaction Dashboard</h1>
+          <p className="text-muted-foreground">Merchant: {data?.merchantId}</p>
+        </div>
+        <form onSubmit={handleSubmit} className="w-full md:w-auto">
+          <Input
+            className="w-full md:w-[300px]"
+            value={searchValue}
+            placeholder="Search Merchant Id"
+            autoComplete="off"
+            onChange={(e) => setSearchValue(e.target.value)}
+          />
+        </form>
       </div>
 
-      {error && (
-        <div className="error-message" style={{ padding: '1rem', background: '#fee2e2', borderRadius: '8px', color: '#991b1b', margin: '1rem 0' }}>
-          Error loading transactions: {error.message}
-        </div>
-      )}
-
-      {loading && !data && (
-        <div className="loading-message" style={{ padding: '2rem', textAlign: 'center', color: '#64748b' }}>
-          Loading transactions...
+      {loading && (
+        <div className="w-full flex items-center justify-center h-[500px]">
+          <Spinner />
         </div>
       )}
 
       {data && (
         <>
-          <div className="summary-section">
-            <TransactionSummary 
-              transactions={data.transactions || []} 
-              totalTransactions={data.totalTransactions || 0}
-            />
-          </div>
+          <TransactionSummary summary={data?.summary} />
+          <TransactionTableFilters
+            handleReset={handleReset}
+            handleStatusChange={handleStatusChange}
+            handleDateRangeChange={handleDateRangeChange}
+            startDate={startDate}
+            endDate={endDate}
+            status={status}
+          />
+          <TransactionList transactions={data.transactions || []} />
 
-          <div className="transactions-section">
-            <TransactionList 
-              transactions={data.transactions || []} 
-              loading={loading}
-            />
-          </div>
-
-          {/* TODO: Add Pagination component */}
-          <div className="pagination-section" style={{ padding: '1rem', marginTop: '1rem', background: '#fef3c7', borderRadius: '8px', color: '#92400e' }}>
-            <p>🔧 TODO: Implement Pagination component (showing page {data.page + 1}, {data.totalTransactions} total transactions)</p>
-          </div>
+          <TablePagination
+            handlePageChange={handlePageChange}
+            handlePageSizeChange={handlePageSizeChange}
+            page={page}
+            size={size}
+            totalPages={totalPages}
+            totalElements={totalElements}
+          />
         </>
       )}
     </main>

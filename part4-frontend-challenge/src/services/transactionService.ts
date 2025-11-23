@@ -21,18 +21,28 @@ export const getTransactions = async (
   merchantId: string,
   filters: FilterState
 ): Promise<TransactionResponse> => {
-  // TODO: Build query parameters
-  const params = {
+  // Build query parameters - only include dates if they have values
+  const params: Record<string, any> = {
     page: filters.page,
     size: filters.size,
-    startDate: filters.startDate,
-    endDate: filters.endDate,
-    ...(filters.status && { status: filters.status }),
   };
+
+  // Only add status if it has a value
+  if (filters.status) {
+    params.status = filters.status;
+  }
+
+  // Only add dates if they have values
+  if (filters.startDate) {
+    params.startDate = filters.startDate;
+  }
+  if (filters.endDate) {
+    params.endDate = filters.endDate;
+  }
 
   // TODO: Make API call
   const url = `${MERCHANT_BASE}/${merchantId}/transactions`;
-  
+
   try {
     const response = await get<TransactionResponse>(url, { params });
     return response;

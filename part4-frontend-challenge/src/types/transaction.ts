@@ -4,7 +4,7 @@ export interface Transaction {
   txnId: number;
   amount: number;
   currency: string;
-  status: 'completed' | 'pending' | 'failed' | 'reversed';
+  status: "completed" | "pending" | "failed" | "reversed";
   timestamp: string;
   cardType: string;
   cardLast4: string;
@@ -15,7 +15,7 @@ export interface Transaction {
 
 export interface TransactionDetail {
   detailId: number;
-  type: 'fee' | 'tax' | 'adjustment' | 'refund';
+  type: "fee" | "tax" | "adjustment" | "refund";
   amount: number;
   description: string;
 }
@@ -32,14 +32,16 @@ export interface TransactionSummary {
 }
 
 export interface TransactionResponse {
-  merchantId: string;
-  dateRange: {
-    start: string;
-    end: string;
+  data: {
+    merchantId: string;
+    dateRange: {
+      start: string;
+      end: string;
+    };
+    summary: TransactionSummary;
+    transactions: Transaction[];
+    pagination: PaginationInfo;
   };
-  summary: TransactionSummary;
-  transactions: Transaction[];
-  pagination: PaginationInfo;
 }
 
 export interface PaginationInfo {
@@ -52,17 +54,15 @@ export interface PaginationInfo {
 export interface FilterState {
   page: number;
   size: number;
-  startDate: string;
-  endDate: string;
+  startDate?: string;
+  endDate?: string;
   status?: string;
-  searchQuery?: string;
 }
 
 export const DEFAULT_FILTERS: FilterState = {
   page: 0,
-  size: 20,
-  startDate: '2025-11-16',
-  endDate: '2025-11-18',
+  size: 10,
+  startDate: undefined,
+  endDate: undefined,
   status: undefined,
-  searchQuery: undefined,
 };

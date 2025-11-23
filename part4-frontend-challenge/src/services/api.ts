@@ -1,4 +1,5 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosError } from 'axios';
+import { toast } from "sonner";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api/v1';
 const API_TIMEOUT = parseInt(import.meta.env.VITE_API_TIMEOUT || '30000');
@@ -24,7 +25,7 @@ apiClient.interceptors.request.use(
     // if (token) {
     //   config.headers.Authorization = `Bearer ${token}`;
     // }
-    
+
     console.log(`[API Request] ${config.method?.toUpperCase()} ${config.url}`, config.params);
     return config;
   },
@@ -44,19 +45,23 @@ apiClient.interceptors.response.use(
   },
   (error: AxiosError) => {
     console.error('[API Response Error]', error.response?.status, error.message);
-    
-    // Handle specific error cases
-    if (error.response?.status === 401) {
-      // Handle unauthorized - redirect to login
-      console.error('Unauthorized access');
-    } else if (error.response?.status === 404) {
-      // Handle not found
-      console.error('Resource not found');
-    } else if (error.response?.status === 500) {
-      // Handle server error
-      console.error('Server error');
+
+    const status = error.response?.status;
+    const errorMessage = (error.response?.data as any)?.message || error.message || "An unexpected error occurred";
+
+    // Handle specific error cases with Toasts
+    if (status === 400) {
+      toast.error(`Bad Request: ${errorMessage}`);
+    } else if (status === 401) {
+      toast.error(errorMessage);
+    } else if (status === 403) {
+      toast.error(errorMessage);
+    } else if (status === 404) {
+      toast.error(errorMessage);
+    } else {
+      toast.error(errorMessage);
     }
-    
+
     return Promise.reject(error);
   }
 );
