@@ -1,4 +1,4 @@
-import { Card, CardContent, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -53,7 +53,6 @@ function TransactionTableFilters({
   };
 
   const handleStatusSelect = (value: string) => {
-    // Convert 'all' to empty string for the API
     handleStatusChange(value === "all" ? "" : value);
   };
 
@@ -67,8 +66,7 @@ function TransactionTableFilters({
   return (
     <Card className="mb-5">
       <CardContent>
-        <div className="flex flex-col sm:flex-row gap-4">
-          {/* Status Filter */}
+        <div className="flex flex-col gap-4 sm:flex-row">
           <div className="flex-1">
             <Select value={status} onValueChange={handleStatusSelect}>
               <SelectTrigger className="w-full">
@@ -83,15 +81,14 @@ function TransactionTableFilters({
             </Select>
           </div>
 
-          {/* Date Range Filter */}
           <div className="flex-1">
             <Popover>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
-                  className="w-full justify-start text-left font-normal"
+                  className="justify-start w-full font-normal text-left"
                 >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  <CalendarIcon className="w-4 h-4 mr-2" />
                   {dateRange?.from ? (
                     dateRange?.to ? (
                       <>
@@ -112,7 +109,6 @@ function TransactionTableFilters({
                   selected={dateRange}
                   onSelect={handleDateSelect}
                   numberOfMonths={2}
-                  initialFocus
                 />
               </PopoverContent>
             </Popover>
@@ -124,7 +120,7 @@ function TransactionTableFilters({
               onClick={clearFilters}
               className="h-8 px-2 lg:px-3"
             >
-              <X className="mr-2 h-4 w-4" />
+              <X className="w-4 h-4 mr-2" />
               Clear filters
             </Button>
           )}

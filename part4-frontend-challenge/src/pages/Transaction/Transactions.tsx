@@ -1,19 +1,16 @@
 import { useEffect, useState } from "react";
-import { FilterState, DEFAULT_FILTERS } from "../types/transaction";
-import { TransactionList } from "../components/common/TransactionList";
-import { TransactionSummary } from "../components/common/TransactionSummary";
-import { useTransactions } from "../hooks/useTransactions";
+
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import TablePagination from "@/components/common/TablePagination";
-import TransactionTableFilters from "@/components/common/TransactionTableFilters";
-import { CloudCog } from "lucide-react";
+import TransactionTableFilters from "@/pages/Transaction/Components/TransactionTableFilters";
 import { Spinner } from "@/components/ui/spinner";
+import { FilterState } from "@/types/common";
+import { DEFAULT_FILTERS } from "@/types/transaction";
+import { useTransactions } from "@/hooks/useTransactions";
+import { TransactionSummary } from "./Components/TransactionSummary";
+import { TransactionList } from "./Components/TransactionList";
 
-/**
- * Transactions Page Component
- * Displays transaction dashboard with summary and list
- */
 export const Transactions = () => {
   const [id, setId] = useState("MCH-00001");
   const [searchValue, setSearchValue] = useState("");
@@ -25,8 +22,6 @@ export const Transactions = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [status, setStatus] = useState("");
-
-  console.log(filters);
 
   const { data, loading, error } = useTransactions(id, filters);
 
@@ -77,8 +72,8 @@ export const Transactions = () => {
   }, [data]);
 
   return (
-    <main className="container mx-auto px-4 py-8 space-y-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <main className="container px-4 py-8 mx-auto space-y-6">
+      <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
         <div>
           <h1 className="text-2xl font-bold">Transaction Dashboard</h1>
           <p className="text-muted-foreground">Merchant: {data?.merchantId}</p>
@@ -100,6 +95,12 @@ export const Transactions = () => {
         </div>
       )}
 
+      {error && (
+        <div className="p-8 text-center text-red-600 border border-red-200 rounded-lg bg-red-50">
+          <p className="font-semibold">Error loading merchants</p>
+          <p className="mt-2 text-sm">{error.message}</p>
+        </div>
+      )}
       {data && (
         <>
           <TransactionSummary summary={data?.summary} />

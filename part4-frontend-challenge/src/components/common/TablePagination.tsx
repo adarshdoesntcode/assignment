@@ -14,7 +14,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Card, CardContent } from "@/components/ui/card";
 
 interface TablePaginationProps {
   handlePageChange: (page: number) => void;
@@ -33,52 +32,40 @@ function TablePagination({
   totalPages,
   totalElements,
 }: TablePaginationProps) {
-  // Calculate page range to display
-  // Note: API uses 0-indexed pages, but we display 1-indexed to users
   const getPageNumbers = () => {
     const pages: (number | "ellipsis")[] = [];
     const maxPagesToShow = 5;
-    const currentDisplayPage = page + 1; // Convert 0-indexed to 1-indexed for display
-
+    const currentDisplayPage = page + 1;
     if (totalPages <= maxPagesToShow) {
-      // Show all pages if total is less than max
       for (let i = 1; i <= totalPages; i++) {
         pages.push(i);
       }
     } else {
-      // Always show first page
       pages.push(1);
 
-      // Calculate start and end of middle pages
       let startPage = Math.max(2, currentDisplayPage - 1);
       let endPage = Math.min(totalPages - 1, currentDisplayPage + 1);
 
-      // Adjust if we're near the start
       if (currentDisplayPage <= 3) {
         endPage = 4;
       }
 
-      // Adjust if we're near the end
       if (currentDisplayPage >= totalPages - 2) {
         startPage = totalPages - 3;
       }
 
-      // Add ellipsis after first page if needed
       if (startPage > 2) {
         pages.push("ellipsis");
       }
 
-      // Add middle pages
       for (let i = startPage; i <= endPage; i++) {
         pages.push(i);
       }
 
-      // Add ellipsis before last page if needed
       if (endPage < totalPages - 1) {
         pages.push("ellipsis");
       }
 
-      // Always show last page
       pages.push(totalPages);
     }
 
@@ -89,14 +76,12 @@ function TablePagination({
   const endItem = Math.min((page + 1) * size, totalElements);
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4">
-      {/* Results info */}
+    <div className="flex flex-col items-center justify-between gap-4 mt-4 sm:flex-row">
       <div className="text-sm text-muted-foreground">
         Showing {startItem} to {endItem} of {totalElements} results
       </div>
 
-      {/* Pagination controls */}
-      <div className="flex items-center gap-4">
+      <div className="flex flex-col items-center gap-4 sm:flex-row">
         {/* Page size selector */}
         <div className="flex items-center gap-2">
           <span className="text-sm text-foreground whitespace-nowrap">
@@ -118,7 +103,6 @@ function TablePagination({
           </Select>
         </div>
 
-        {/* Page navigation */}
         {totalPages > 1 && (
           <Pagination>
             <PaginationContent>
@@ -142,7 +126,6 @@ function TablePagination({
                       href="#"
                       onClick={(e) => {
                         e.preventDefault();
-                        // Convert 1-indexed display page to 0-indexed API page
                         handlePageChange(pageNum - 1);
                       }}
                       isActive={page === pageNum - 1}

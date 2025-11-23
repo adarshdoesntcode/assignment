@@ -1,38 +1,22 @@
-import { get } from './api';
-import { TransactionResponse, FilterState } from '../types/transaction';
+import { get } from "./api";
+import { TransactionResponse } from "../types/transaction";
+import { FilterState } from "@/types/common";
 
-/**
- * Transaction Service
- * Handles all transaction-related API calls
- */
+const TRANSACTION_BASE = "/transactions";
 
-const MERCHANT_BASE = '/merchants';
-
-/**
- * Get transactions for a specific merchant
- * 
- * TODO: Implement this method to call the backend API
- * 
- * @param merchantId - The merchant ID
- * @param filters - Filter parameters (page, size, dates, status)
- * @returns Promise with transaction response data
- */
 export const getTransactions = async (
   merchantId: string,
   filters: FilterState
 ): Promise<TransactionResponse> => {
-  // Build query parameters - only include dates if they have values
   const params: Record<string, any> = {
     page: filters.page,
     size: filters.size,
   };
 
-  // Only add status if it has a value
   if (filters.status) {
     params.status = filters.status;
   }
 
-  // Only add dates if they have values
   if (filters.startDate) {
     params.startDate = filters.startDate;
   }
@@ -40,30 +24,17 @@ export const getTransactions = async (
     params.endDate = filters.endDate;
   }
 
-  // TODO: Make API call
-  const url = `${MERCHANT_BASE}/${merchantId}/transactions`;
+  const url = `${TRANSACTION_BASE}/${merchantId}`;
 
   try {
     const response = await get<TransactionResponse>(url, { params });
     return response;
   } catch (error) {
-    console.error('Error fetching transactions:', error);
+    console.error("Error fetching transactions:", error);
     throw error;
   }
 };
 
-/**
- * Get a single transaction by ID
- * (Optional - for future enhancement)
- */
-export const getTransactionById = async (
-  txnId: number
-): Promise<any> => {
-  // TODO: Implement if needed
-  throw new Error('Not implemented');
-};
-
 export default {
   getTransactions,
-  getTransactionById,
 };

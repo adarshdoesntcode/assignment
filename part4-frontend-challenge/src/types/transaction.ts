@@ -1,4 +1,4 @@
-// Transaction-related types and interfaces
+import { FilterState } from "./common";
 
 export interface Transaction {
   txnId: number;
@@ -49,14 +49,6 @@ export interface PaginationInfo {
   size: number;
   totalPages: number;
   totalElements: number;
-}
-
-export interface FilterState {
-  page: number;
-  size: number;
-  startDate?: string;
-  endDate?: string;
-  status?: string;
 }
 
 export const DEFAULT_FILTERS: FilterState = {
