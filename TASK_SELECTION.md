@@ -1,13 +1,17 @@
 # Task Selection
 
 ## Developer Information
+
 - **Name**: Adarsh Das
 - **Date**: November 23, 2025
 - **Estimated Completion Time**: 17 hours (completed)
 
+### APi Docs - (http://localhost:8080/rapidoc)
+
 ## Selected Tasks
 
 ### Transaction Dashboard
+
 - [x] Implemented Search Filters
 - [x] Implemented Pagination
 - [x] Refactored the response object to meet the requirements
@@ -15,6 +19,7 @@
 ### Merchants Management Features
 
 #### Merchant List View (30 points available)
+
 - [x] Display merchant information in table format (10 pts)
 - [x] Search and filter by name, ID, or status (5 pts)
 - [x] Sort by various criteria (5 pts)
@@ -24,6 +29,7 @@
 **Subtotal from this feature**: **30 points**
 
 #### Add New Merchant (25 points available)
+
 - [x] Form with merchant details (name, email, phone) (8 pts)
 - [x] Business information and registration (5 pts)
 - [x] Submit to POST /api/v1/merchants (5 pts)
@@ -33,6 +39,7 @@
 **Subtotal from this feature**: **25 points**
 
 #### Edit Merchant Details (20 points available)
+
 - [x] Pre-populate form with existing data (5 pts)
 - [x] Update contact details and address (5 pts)
 - [x] Manage merchant status (active/inactive) (5 pts)
@@ -42,6 +49,7 @@
 **Subtotal from this feature**: **20 points**
 
 #### Merchant Details View (25 points available)
+
 - [x] Display complete merchant profile (5 pts)
 - [x] Show transaction statistics (8 pts)
 - [x] List recent transactions (7 pts)
@@ -55,6 +63,7 @@
 ### Reports & Analytics Features
 
 #### Transaction Analytics (35 points available)
+
 - [x] Total transaction volume by day/week/month (10 pts)
 - [x] Success vs. failure rate analysis (8 pts)
 - [x] Average transaction amount trends (7 pts)
@@ -64,6 +73,7 @@
 **Subtotal from this feature**: **35 points**
 
 #### Revenue Reports (30 points available)
+
 - [ ] Revenue by time period (daily/weekly/monthly) (8 pts)
 - [ ] Revenue breakdown by merchant (7 pts)
 - [ ] Revenue forecasting based on trends (8 pts)
@@ -73,6 +83,7 @@
 **Subtotal from this feature**: **0 points**
 
 #### Export & Download (20 points available)
+
 - [ ] CSV export for Excel analysis (5 pts)
 - [ ] PDF report generation (7 pts)
 - [ ] Scheduled email delivery (4 pts)
@@ -82,6 +93,7 @@
 **Subtotal from this feature**: **0 points**
 
 #### Interactive Charts (15 points available)
+
 - [ ] Line charts for trends over time (4 pts)
 - [ ] Bar charts for comparisons (4 pts)
 - [ ] Pie charts for distribution (3 pts)
@@ -97,6 +109,7 @@
 **Total Selected Points**: **135 / 100 points**
 
 ### Point Breakdown by Area
+
 - Merchants Management: **100 points** (Complete)
 - Reports & Analytics: **35 points**
 
@@ -105,13 +118,16 @@
 ## Implementation Plan
 
 ### Approach
+
 I implemented a comprehensive full-stack solution focusing on both merchant management and analytics reporting. The approach was to:
+
 1. Build a complete merchant CRUD system with all features
 2. Implement robust transaction analytics with multiple chart types
 3. Ensure responsive design and excellent UX throughout
 4. Fix and refactor backend endpoints to support advanced filtering and sorting
 
 ### Order of Implementation
+
 1. **Merchant List View** - Created table display with sorting, filtering, and pagination using custom hooks
 2. **Add New Merchant** - Implemented form with validation and API integration
 3. **Edit Merchant Details** - Built edit functionality with pre-population and confirmation dialogs
@@ -124,6 +140,7 @@ I implemented a comprehensive full-stack solution focusing on both merchant mana
 10. **Bug Fixes** - Resolved chart rendering issues, status filter bugs, TypeScript errors, and DTO serialization
 
 ### Technical Decisions
+
 - **State Management**: Custom React hooks (`useMerchants`, `useMerchantDetails`, `useMerchantMutation`, `useTransactions`, `useTransactionReports`) for clean separation of concerns
 - **Charting Library**: Recharts for all data visualizations (Area, Bar, Line, Pie charts)
 - **UI Framework**: shadcn/ui components with Tailwind CSS for consistent, modern design
@@ -135,6 +152,7 @@ I implemented a comprehensive full-stack solution focusing on both merchant mana
 - **Responsive Design**: Mobile-first approach with Tailwind responsive utilities
 
 ### Backend Enhancements
+
 - Refactored `GET /api/v1/merchants` endpoint to support optional `isActive` filtering and multi-sort
 - Modified `GET /api/v1/merchants/{merchantId}` to return merchants regardless of status
 - Updated `GET /api/v1/transactions/{merchantId}` to include `txnDate` and default sort by date
@@ -143,6 +161,7 @@ I implemented a comprehensive full-stack solution focusing on both merchant mana
 - Ensured all responses include proper timestamps and metadata
 
 ### Assumptions
+
 - Backend API endpoints return data in JSON format as documented
 - User has sufficient permissions to perform all CRUD operations
 - Transaction data includes all required fields for analytics calculations
@@ -151,6 +170,7 @@ I implemented a comprehensive full-stack solution focusing on both merchant mana
 - Merchant status (active/inactive) is a key business requirement
 
 ### Timeline
+
 - [x] Task selection: November 22, 2025 - Initial planning
 - [x] Start implementation: November 22, 2025 - Began with Tailwind setup
 - [x] Merchant List Implementation: November 22-23, 2025
@@ -167,6 +187,7 @@ I implemented a comprehensive full-stack solution focusing on both merchant mana
 ### Completed Features Highlights
 
 **Merchant Management (100/100 points)**
+
 - Fully functional merchant table with search, filter, sort, and pagination
 - Complete Add/Edit/View merchant workflows
 - Status management with confirmation dialogs
@@ -175,6 +196,7 @@ I implemented a comprehensive full-stack solution focusing on both merchant mana
 - Transaction history embedded in merchant details
 
 **Reports & Analytics (35/100 points)**
+
 - Interactive analytics dashboard with key metrics cards
 - Transaction volume charts (Daily/Weekly/Monthly) with tabbed interface
 - Success vs failure rate pie chart
@@ -185,6 +207,7 @@ I implemented a comprehensive full-stack solution focusing on both merchant mana
 - Period-based filtering and data aggregation
 
 ### Technical Achievements
+
 - Fixed critical Recharts rendering issues within TabsContent components
 - Resolved TypeScript type safety issues across components
 - Implemented multi-sort capability in backend for flexible data ordering
@@ -194,6 +217,7 @@ I implemented a comprehensive full-stack solution focusing on both merchant mana
 - Fixed DTO serialization issues with proper annotations
 
 ### Known Limitations
+
 - Revenue forecasting not implemented (would require time-series analysis algorithms)
 - No year-over-year analysis (would need historical data spanning multiple years)
 - Top performing merchants ranking not implemented in Reports page (shown elsewhere)
@@ -203,6 +227,7 @@ I implemented a comprehensive full-stack solution focusing on both merchant mana
 - Export history tracking not implemented
 
 ### Exceeded Requirements
+
 - Completed ALL Merchant Management features (100/100 points)
 - Exceeded 100 point target with 135 total points
 - Implemented advanced features like multi-sort and status management
@@ -218,10 +243,10 @@ I implemented a comprehensive full-stack solution focusing on both merchant mana
 ### Points Awarded
 
 | Task | Selected Points | Quality % | Awarded Points | Notes |
-|------|----------------|-----------|----------------|-------|
-| ... | ... | ... | ... | ... |
+| ---- | --------------- | --------- | -------------- | ----- |
+| ...  | ...             | ...       | ...            | ...   |
 
-**Total Awarded**: _____ / 100 points
+**Total Awarded**: **\_** / 100 points
 
 **Comments**:
 [Reviewer feedback]
