@@ -3,9 +3,14 @@
 ## Developer Information
 - **Name**: Adarsh Das
 - **Date**: November 23, 2025
-- **Estimated Completion Time**: 6-8 hours (completed)
+- **Estimated Completion Time**: 17 hours (completed)
 
 ## Selected Tasks
+
+### Transaction Dashboard
+- [x] Implemented Search Filters
+- [x] Implemented Pagination
+- [x] Refactored the response object to meet the requirements
 
 ### Merchants Management Features
 
@@ -65,7 +70,7 @@
 - [ ] Year-over-year growth analysis (4 pts)
 - [ ] Top performing merchants ranking (3 pts)
 
-**Subtotal from this feature**: **15 points**
+**Subtotal from this feature**: **0 points**
 
 #### Export & Download (20 points available)
 - [ ] CSV export for Excel analysis (5 pts)
@@ -74,7 +79,7 @@
 - [ ] Custom date range selection (2 pts)
 - [ ] Export history tracking (2 pts)
 
-**Subtotal from this feature**: **5 points**
+**Subtotal from this feature**: **0 points**
 
 #### Interactive Charts (15 points available)
 - [ ] Line charts for trends over time (4 pts)
@@ -83,7 +88,7 @@
 - [ ] Real-time data updates (2 pts)
 - [ ] Drill-down capabilities (2 pts)
 
-**Subtotal from this feature**: **11 points**
+**Subtotal from this feature**: **0 points**
 
 ---
 
