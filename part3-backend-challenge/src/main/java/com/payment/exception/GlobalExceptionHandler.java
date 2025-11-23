@@ -1,6 +1,6 @@
 package com.payment.exception;
 
-import com.payment.dto.ErrorResponse;
+import com.payment.dto.common.ErrorResponse;
 import io.micronaut.context.annotation.Requires;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;

@@ -1,4 +1,4 @@
-package com.payment.dto;
+package com.payment.dto.transaction;
 
 import io.micronaut.core.annotation.Introspected;
 import io.micronaut.serde.annotation.Serdeable;

@@ -17,11 +17,9 @@ import java.math.BigDecimal;
 import java.sql.Date;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -86,22 +84,17 @@ class TransactionServiceTest {
                                 any(Pageable.class)))
                                 .thenReturn(page);
 
-                when(transactionRepository.sumAmountByMerchantIdAndTxnDateBetween(
-                                eq(merchantId),
-                                any(Date.class),
-                                any(Date.class)))
+                when(transactionRepository.countByMerchantId(merchantId))
+                                .thenReturn(1L);
+
+                when(transactionRepository.sumAmountByMerchantId(merchantId))
                                 .thenReturn(new BigDecimal("150.00"));
 
-                when(transactionRepository.findDistinctStatusByMerchantIdAndTxnDateBetween(
-                                eq(merchantId),
-                                any(Date.class),
-                                any(Date.class)))
+                when(transactionRepository.findDistinctStatusByMerchantId(merchantId))
                                 .thenReturn(Arrays.asList("completed"));
 
-                when(transactionRepository.countByMerchantIdAndTxnDateBetweenAndStatus(
+                when(transactionRepository.countByMerchantIdAndStatus(
                                 eq(merchantId),
-                                any(Date.class),
-                                any(Date.class),
                                 eq("completed")))
                                 .thenReturn(1L);
 
@@ -241,25 +234,17 @@ class TransactionServiceTest {
                                 any(Date.class),
                                 any(Pageable.class)))
                                 .thenReturn(page);
-                when(transactionRepository.countByMerchantIdAndTxnDateBetween(
-                                eq(merchantId),
-                                any(Date.class),
-                                any(Date.class)))
+                when(transactionRepository.countByMerchantId(merchantId))
                                 .thenReturn(1L);
-                when(transactionRepository.sumAmountByMerchantIdAndTxnDateBetween(
-                                eq(merchantId),
-                                any(Date.class),
-                                any(Date.class)))
+
+                when(transactionRepository.sumAmountByMerchantId(merchantId))
                                 .thenReturn(new BigDecimal("150.00"));
-                when(transactionRepository.findDistinctStatusByMerchantIdAndTxnDateBetween(
-                                eq(merchantId),
-                                any(Date.class),
-                                any(Date.class)))
+
+                when(transactionRepository.findDistinctStatusByMerchantId(merchantId))
                                 .thenReturn(Arrays.asList("completed"));
-                when(transactionRepository.countByMerchantIdAndTxnDateBetweenAndStatus(
+
+                when(transactionRepository.countByMerchantIdAndStatus(
                                 eq(merchantId),
-                                any(Date.class),
-                                any(Date.class),
                                 eq("completed")))
                                 .thenReturn(1L);
 
@@ -305,6 +290,9 @@ class TransactionServiceTest {
                                 eq("completed"),
                                 any(Pageable.class)))
                                 .thenReturn(page);
+
+                when(transactionRepository.countByMerchantId(merchantId))
+                                .thenReturn(1L);
 
                 when(transactionRepository.sumAmountByMerchantId(merchantId))
                                 .thenReturn(new BigDecimal("150.00"));

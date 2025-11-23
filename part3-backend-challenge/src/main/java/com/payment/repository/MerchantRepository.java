@@ -72,4 +72,28 @@ public interface MerchantRepository extends PageableRepository<Merchant, String>
         @Query(value = "SELECT merchant_.* FROM operators.merchants merchant_ WHERE LOWER(merchant_.merchant_name) LIKE LOWER(CONCAT('%', :merchantName, '%')) AND merchant_.business_type = :businessType AND merchant_.is_active = :isActive", countQuery = "SELECT COUNT(*) FROM operators.merchants WHERE LOWER(merchant_name) LIKE LOWER(CONCAT('%', :merchantName, '%')) AND business_type = :businessType AND is_active = :isActive")
         Page<Merchant> findByMerchantNameContainsIgnoreCaseAndBusinessTypeAndIsActive(String merchantName,
                         String businessType, Boolean isActive, Pageable pageable);
+
+        /**
+         * Find the latest merchant (highest merchantId) for ID generation
+         */
+        @Query("SELECT merchant_.* FROM operators.merchants merchant_ ORDER BY merchant_.merchant_id DESC LIMIT 1")
+        java.util.Optional<Merchant> findLatestMerchant();
+
+        /**
+         * Check if email already exists
+         */
+        @Query("SELECT COUNT(*) FROM operators.merchants WHERE email = :email")
+        Long countByEmail(String email);
+
+        /**
+         * Check if taxId already exists
+         */
+        @Query("SELECT COUNT(*) FROM operators.merchants WHERE tax_id = :taxId")
+        Long countByTaxId(String taxId);
+
+        /**
+         * Check if registrationNumber already exists
+         */
+        @Query("SELECT COUNT(*) FROM operators.merchants WHERE registration_number = :registrationNumber")
+        Long countByRegistrationNumber(String registrationNumber);
 }

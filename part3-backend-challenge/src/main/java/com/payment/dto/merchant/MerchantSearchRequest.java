@@ -1,4 +1,4 @@
-package com.payment.dto;
+package com.payment.dto.merchant;
 
 import io.micronaut.core.annotation.Introspected;
 import io.micronaut.serde.annotation.Serdeable;
@@ -26,14 +26,17 @@ public class MerchantSearchRequest {
         @Pattern(regexp = "^MCH-\\d{5}$", message = "Merchant ID must be in format MCH-XXXXX")
         private String merchantId;
 
+        @Schema(description = "Filter by active status (optional)", example = "true")
+        private Boolean isActive;
+
         @Schema(description = "Comma-separated fields to sort by", example = "merchantName,createdAt", allowableValues = {
                         "merchantId", "merchantName", "businessName", "businessType", "createdAt" })
         @Builder.Default
-        private String sortBy = "merchantId";
+        private String sortBy = "createdAt";
 
         @Schema(description = "Comma-separated sort directions (ASC or DESC)", example = "ASC,DESC")
         @Builder.Default
-        private String sortDirection = "ASC";
+        private String sortDirection = "DESC";
 
         @Schema(description = "Page number (0-indexed)", example = "0")
         @Min(value = 0, message = "Page must be greater than or equal to 0")

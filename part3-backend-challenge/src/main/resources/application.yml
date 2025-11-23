@@ -4,7 +4,7 @@ micronaut:
   server:
     port: 8080
     cors:
-      enabled: false
+      enabled: true
       configurations:
         web:
           allowed-origins:

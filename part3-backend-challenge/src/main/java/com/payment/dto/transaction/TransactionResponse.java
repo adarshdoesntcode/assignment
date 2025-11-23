@@ -1,4 +1,4 @@
-package com.payment.dto;
+package com.payment.dto.transaction;
 
 import io.micronaut.serde.annotation.Serdeable;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -30,6 +30,9 @@ public class TransactionResponse {
 
     @Schema(description = "Transaction status", example = "completed")
     private String status;
+
+    @Schema(description = "Transaction date", example = "2025-11-18")
+    private java.sql.Date txnDate;
 
     @Schema(description = "Transaction timestamp", example = "2025-11-18T14:32:15Z")
     private Instant timestamp;

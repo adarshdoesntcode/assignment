@@ -1,4 +1,4 @@
-package com.payment.dto;
+package com.payment.dto.common;
 
 import io.micronaut.serde.annotation.Serdeable;
 import java.time.Instant;

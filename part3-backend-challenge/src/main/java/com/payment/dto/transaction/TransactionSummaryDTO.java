@@ -1,4 +1,4 @@
-package com.payment.dto;
+package com.payment.dto.transaction;
 
 import io.micronaut.serde.annotation.Serdeable;
 import io.swagger.v3.oas.annotations.media.Schema;

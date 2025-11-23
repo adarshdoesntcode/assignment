@@ -1,4 +1,4 @@
-package com.payment.dto;
+package com.payment.dto.merchant;
 
 import io.micronaut.serde.annotation.Serdeable;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -35,8 +35,14 @@ public class MerchantResponse {
     @Schema(description = "Business type", example = "retail")
     private String businessType;
 
+    @Schema(description = "Tax ID", example = "TAX-12345")
+    private String taxId;
+
     @Schema(description = "Registration number", example = "REG-2024-001")
     private String registrationNumber;
+
+    @Schema(description = "Merchant active status", example = "true")
+    private Boolean isActive;
 
     @Schema(description = "Creation timestamp", example = "2024-05-27T10:15:30Z")
     private Instant createdAt;

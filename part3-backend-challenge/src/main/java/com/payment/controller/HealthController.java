@@ -5,7 +5,7 @@ import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import com.payment.dto.ApiResponse;
+import com.payment.dto.common.ApiResponse;
 
 import java.time.Instant;
 import java.util.Map;
